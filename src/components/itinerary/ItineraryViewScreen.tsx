@@ -509,11 +509,17 @@ export const ItineraryViewScreen: React.FC<ItineraryViewScreenProps> = ({
 
       <ConfirmRemoveModal
         isOpen={!!removeTargetActivity}
+        activityName={removeTargetActivity?.name || ''}
+        dayNumber={removeTargetActivity?.dayNumber || 1}
         title="Remove Activity from Itinerary"
-        message={`Are you sure you want to remove "${removeTargetActivity?.name}" from your itinerary? You can re-add it anytime.`}
+        message={
+          removeTargetActivity
+            ? `Are you sure you want to remove "${removeTargetActivity.name}" from your Day ${removeTargetActivity.dayNumber} itinerary? You can re-add it anytime.`
+            : undefined
+        }
         confirmLabel="Remove Activity"
         onConfirm={handleConfirmRemove}
-        onCancel={() => setRemoveTargetActivity(null)}
+        onClose={() => setRemoveTargetActivity(null)}
       />
     </div>
   );

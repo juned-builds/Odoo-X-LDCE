@@ -28,35 +28,45 @@ export const QuickEditActivityModal: React.FC<QuickEditActivityModalProps> = ({
   onClose,
   onSaveQuickEdit,
 }) => {
-  if (!isOpen || !activity) return null;
-
-  const [name, setName] = useState(activity.name);
+  const [name, setName] = useState(activity?.name || '');
   const [selectedDayNumber, setSelectedDayNumber] = useState<number>(
-    activity.dayNumber || 1
+    activity?.dayNumber || 1
   );
-  const [startTime, setStartTime] = useState(activity.startTime || '09:30 AM');
+  const [startTime, setStartTime] = useState(activity?.startTime || '09:30 AM');
   const [customStartTime, setCustomStartTime] = useState('');
-  const [isCustomTime, setIsCustomTime] = useState(!PRESET_START_TIMES.includes(activity.startTime || ''));
-  const [duration, setDuration] = useState(activity.duration || '2 hours');
+  const [isCustomTime, setIsCustomTime] = useState(
+    activity?.startTime ? !PRESET_START_TIMES.includes(activity.startTime) : false
+  );
+  const [duration, setDuration] = useState(activity?.duration || '2 hours');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (activity) {
-      setName(activity.name);
+    if (isOpen && activity) {
+      setName(activity.name || '');
       setSelectedDayNumber(activity.dayNumber || 1);
       const isPreset = PRESET_START_TIMES.includes(activity.startTime || '');
       setStartTime(activity.startTime || '09:30 AM');
       setIsCustomTime(!isPreset);
       if (!isPreset && activity.startTime) {
         setCustomStartTime(activity.startTime);
+      } else {
+        setCustomStartTime('');
       }
       setDuration(activity.duration || '2 hours');
       setError(null);
     }
-  }, [activity]);
+  }, [isOpen, activity]);
+
+  const handleClose = () => {
+    if (typeof onClose === 'function') {
+      onClose();
+    }
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activity) return;
+
     if (!name.trim()) {
       setError('Activity name is required');
       return;
@@ -83,8 +93,10 @@ export const QuickEditActivityModal: React.FC<QuickEditActivityModalProps> = ({
       duration: duration.trim(),
       durationMinutes: durMins,
     });
-    onClose();
+    handleClose();
   };
+
+  if (!isOpen || !activity) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">

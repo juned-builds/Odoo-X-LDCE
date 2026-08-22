@@ -33,6 +33,26 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
 }) => {
   if (!isOpen || !activity) return null;
 
+  const handleClose = () => {
+    if (typeof onClose === 'function') {
+      onClose();
+    }
+  };
+
+  const handleQuickEdit = () => {
+    handleClose();
+    if (typeof onQuickEdit === 'function' && activity) {
+      onQuickEdit(activity);
+    }
+  };
+
+  const handleRemove = () => {
+    handleClose();
+    if (typeof onRemove === 'function' && activity) {
+      onRemove(activity);
+    }
+  };
+
   const country = getDestinationCountry(activity.destinationCity);
 
   return (
@@ -59,7 +79,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
           {/* Close button */}
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-4 right-4 p-2 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md transition-all cursor-pointer shadow-md"
             aria-label="Close details"
           >
@@ -186,10 +206,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2.5">
           <button
             type="button"
-            onClick={() => {
-              onClose();
-              onRemove(activity);
-            }}
+            onClick={handleRemove}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -200,15 +217,12 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                onClose();
-                onQuickEdit(activity);
-              }}
+              onClick={handleQuickEdit}
               leftIcon={<Edit3 className="w-3.5 h-3.5" />}
             >
               Quick Edit
             </Button>
-            <Button variant="primary" size="sm" onClick={onClose}>
+            <Button variant="primary" size="sm" onClick={handleClose}>
               Close
             </Button>
           </div>

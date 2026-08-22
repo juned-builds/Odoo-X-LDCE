@@ -282,7 +282,7 @@ export const ItineraryCalendarView: React.FC<ItineraryCalendarViewProps> = ({
 
                 return (
                   <div
-                    key={idx}
+                    key={`${cell.dateStr}-${idx}`}
                     onClick={() => {
                       if (cell.itineraryDay) {
                         setSelectedDayNumber(cell.itineraryDay.dayNumber);
