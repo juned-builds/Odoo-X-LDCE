@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { DashboardView } from '../dashboard/DashboardView';
@@ -10,18 +10,30 @@ import { ViewTripModal } from '../trips/ViewTripModal';
 import { ItineraryBuilderView } from '../itinerary/ItineraryBuilderView';
 import { ItineraryViewScreen } from '../itinerary/ItineraryViewScreen';
 import { BudgetViewScreen } from '../budget/BudgetViewScreen';
+import { PublicItineraryView } from '../share/PublicItineraryView';
+import { ShareTripModal } from '../share/ShareTripModal';
+import { SettingsView } from '../settings/SettingsView';
 import { PlaceholderModal } from '../common/PlaceholderModal';
 import { NavSection, Trip, Destination, TripActivityAssignment } from '../../types/dashboard';
 import { Activity } from '../../types/activity';
 import { AuthenticatedUser } from '../../types/auth';
 import { MOCK_RECENT_TRIPS } from '../../data/mockDashboardData';
+import { ALL_DESTINATIONS } from '../../data/destinationsData';
+import { getTripShareId, cloneTripForCopy } from '../../utils/shareUtils';
 
 interface AppShellProps {
   user: AuthenticatedUser | null;
   onLogout: () => void;
+  onUpdateUser?: (updatedUser: AuthenticatedUser) => void;
+  onDeleteAccount?: () => void;
 }
 
-export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
+export const AppShell: React.FC<AppShellProps> = ({
+  user,
+  onLogout,
+  onUpdateUser,
+  onDeleteAccount,
+}) => {
   const [activeSection, setActiveSection] = useState<NavSection>('dashboard');
   const [trips, setTrips] = useState<Trip[]>(MOCK_RECENT_TRIPS);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
@@ -33,6 +45,36 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
   const [activityDestinationCity, setActivityDestinationCity] = useState<string>('Paris');
   const [itineraryTrip, setItineraryTrip] = useState<Trip | null>(null);
   const [budgetTrip, setBudgetTrip] = useState<Trip | null>(null);
+
+  // Module 11: Saved Destinations state
+  const [savedDestinationIds, setSavedDestinationIds] = useState<string[]>([
+    'dest-tokyo',
+    'dest-santorini',
+    'dest-swiss-alps',
+  ]);
+
+  // Derived saved destinations list
+  const savedDestinations = useMemo(() => {
+    return ALL_DESTINATIONS.filter((d) => savedDestinationIds.includes(d.id));
+  }, [savedDestinationIds]);
+
+  const handleToggleSaveDestination = (destination: Destination) => {
+    setSavedDestinationIds((prev) => {
+      if (prev.includes(destination.id)) {
+        return prev.filter((id) => id !== destination.id);
+      } else {
+        return [...prev, destination.id];
+      }
+    });
+  };
+
+  const handleRemoveSavedDestination = (destinationId: string) => {
+    setSavedDestinationIds((prev) => prev.filter((id) => id !== destinationId));
+  };
+
+  // Module 10: Shared / Public Itinerary State
+  const [shareModalTrip, setShareModalTrip] = useState<Trip | null>(null);
+  const [publicShareId, setPublicShareId] = useState<string | null>(null);
 
   const [placeholderInfo, setPlaceholderInfo] = useState<{
     isOpen: boolean;
@@ -46,7 +88,34 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     moduleName: '',
   });
 
+  // URL Hash Listener for direct public share links (e.g. #/share/:shareId)
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (typeof window !== 'undefined') {
+        const hash = window.location.hash;
+        if (hash.startsWith('#/share/')) {
+          const id = hash.replace('#/share/', '').trim();
+          setPublicShareId(id || null);
+        } else if (hash.startsWith('#/shared/')) {
+          const id = hash.replace('#/shared/', '').trim();
+          setPublicShareId(id || null);
+        } else if (hash === '#/my-trips') {
+          setPublicShareId(null);
+          setActiveSection('my-trips');
+        } else if (hash === '#/dashboard') {
+          setPublicShareId(null);
+          setActiveSection('dashboard');
+        }
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   const handleSelectSection = (section: NavSection) => {
+    setPublicShareId(null);
     setActiveSection(section);
     if (section !== 'create-trip') {
       setEditingTrip(null);
@@ -67,22 +136,20 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
       section !== 'itinerary' &&
       section !== 'itinerary-builder' &&
       section !== 'calendar' &&
-      section !== 'budget'
+      section !== 'budget' &&
+      section !== 'settings'
     ) {
-      const sectionLabels: Record<string, string> = {
-        settings: 'Preferences & Account Settings',
-      };
-
       setPlaceholderInfo({
         isOpen: true,
-        title: sectionLabels[section] || 'Upcoming Screen',
-        description: `The ${sectionLabels[section]} screen is planned for later development modules. You can explore destinations, plan journeys, and manage your full trip collection.`,
-        moduleName: `Module: ${sectionLabels[section]}`,
+        title: 'Upcoming Screen',
+        description: 'This screen is planned for subsequent development modules.',
+        moduleName: 'Module: Feature Screen',
       });
     }
   };
 
   const handleOpenBudget = (trip?: Trip) => {
+    setPublicShareId(null);
     if (trip) {
       setBudgetTrip(trip);
     }
@@ -104,46 +171,45 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     if (viewingTrip?.id === updatedTrip.id) {
       setViewingTrip(updatedTrip);
     }
-  };
-
-  const handleOpenItinerary = (
-    trip: Trip,
-    mode: 'view' | 'edit' | 'calendar' = 'view'
-  ) => {
-    setItineraryTrip(trip);
-    setPreviousSection(
-      activeSection === 'itinerary' || activeSection === 'itinerary-builder'
-        ? 'my-trips'
-        : activeSection
-    );
-    if (mode === 'edit') {
-      setActiveSection('itinerary-builder');
-    } else if (mode === 'calendar') {
-      setActiveSection('calendar');
-    } else {
-      setActiveSection('itinerary');
+    if (shareModalTrip?.id === updatedTrip.id) {
+      setShareModalTrip(updatedTrip);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSaveItinerary = (updatedTrip: Trip) => {
-    setTrips((prevTrips) =>
-      prevTrips.map((t) => (t.id === updatedTrip.id ? updatedTrip : t))
-    );
-    setItineraryTrip(updatedTrip);
-    setNotificationMessage(`Itinerary for "${updatedTrip.name}" saved successfully.`);
   };
 
   const handlePlanTrip = () => {
+    setPublicShareId(null);
     setEditingTrip(null);
-    setPreviousSection(activeSection === 'create-trip' ? 'dashboard' : activeSection);
+    setPreviousSection(activeSection);
     setActiveSection('create-trip');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleBackFromCreate = () => {
+    setActiveSection(previousSection);
+    setEditingTrip(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleTripCreated = (newTrip: Trip) => {
+    setTrips([newTrip, ...trips]);
+    setNewlyCreatedTrip(newTrip);
+    setNotificationMessage(`Trip "${newTrip.name}" has been created successfully.`);
+    setActiveSection('dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleTripUpdated = (updatedTrip: Trip) => {
+    setTrips(trips.map((t) => (t.id === updatedTrip.id ? updatedTrip : t)));
+    setNotificationMessage(`Trip "${updatedTrip.name}" updated successfully.`);
+    setActiveSection('my-trips');
+    setEditingTrip(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleEditTrip = (trip: Trip) => {
+    setPublicShareId(null);
     setEditingTrip(trip);
-    setPreviousSection(activeSection === 'create-trip' ? 'my-trips' : activeSection);
+    setPreviousSection(activeSection);
     setActiveSection('create-trip');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -154,164 +220,154 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
 
   const handleDeleteTrip = (tripId: string) => {
     const deletedTrip = trips.find((t) => t.id === tripId);
-    setTrips((prevTrips) => prevTrips.filter((t) => t.id !== tripId));
-    setNotificationMessage(
-      `"${deletedTrip?.name || 'Trip'}" was removed from your collection.`
-    );
-  };
-
-  const handleTripCreated = (newTrip: Trip, actionType: 'save' | 'continue') => {
-    // Add new trip to the trips collection
-    setTrips((prevTrips) => [newTrip, ...prevTrips]);
-    setNewlyCreatedTrip(newTrip);
-    setEditingTrip(null);
-
-    if (actionType === 'continue') {
-      setActiveSection('my-trips');
-    } else {
-      setActiveSection('dashboard');
+    setTrips(trips.filter((t) => t.id !== tripId));
+    if (deletedTrip) {
+      setNotificationMessage(`"${deletedTrip.name}" was successfully deleted.`);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleTripUpdated = (updatedTrip: Trip) => {
-    // Update existing trip in collection
-    setTrips((prevTrips) =>
-      prevTrips.map((t) => (t.id === updatedTrip.id ? updatedTrip : t))
-    );
-    setEditingTrip(null);
-    setNotificationMessage(`"${updatedTrip.name}" has been updated successfully.`);
-
-    // Return to the previous screen (e.g. My Trips or Dashboard)
-    setActiveSection(previousSection === 'create-trip' ? 'my-trips' : previousSection);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleBackFromCreate = () => {
-    setEditingTrip(null);
-    setActiveSection(previousSection || 'dashboard');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Module 5: Add Destination to an Existing Trip in shared state
-  const handleAddDestinationToTrip = (tripId: string, destination: Destination) => {
+  const handleAddDestinationToTrip = (tripId: string, destinationName: string) => {
     setTrips((prevTrips) =>
       prevTrips.map((t) => {
         if (t.id !== tripId) return t;
 
-        const alreadyHasCity = t.destinations.some(
-          (d) => d.toLowerCase() === destination.city.toLowerCase()
-        );
+        const currentDests = t.destinations || [];
+        if (currentDests.includes(destinationName)) {
+          return t;
+        }
 
-        const updatedDestinations = alreadyHasCity
-          ? t.destinations
-          : [...t.destinations, destination.city];
+        const updatedDests = [...currentDests, destinationName];
+        const newRoute = updatedDests.join(' → ');
+        const newDestCount = updatedDests.length;
 
-        const updatedRoute = alreadyHasCity
-          ? t.route
-          : t.route
-          ? `${t.route} → ${destination.city}`
-          : destination.city;
-
-        const updatedStops = [
-          ...(t.stops || []),
-          {
-            destinationId: destination.id,
-            city: destination.city,
-            country: destination.country,
-            order: (t.stops?.length || 0) + 1,
-          },
-        ];
+        const newStop = {
+          id: `stop-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+          city: destinationName,
+          durationDays: 2,
+          order: (t.stops?.length || 0) + 1,
+        };
+        const updatedStops = [...(t.stops || []), newStop];
 
         return {
           ...t,
-          destinations: updatedDestinations,
-          destinationCount: updatedDestinations.length,
-          route: updatedRoute,
+          destinations: updatedDests,
+          route: newRoute,
+          destinationCount: newDestCount,
           stops: updatedStops,
         };
       })
     );
   };
 
-  // Module 5: Quick Start New Trip with a specific destination
-  const handleCreateTripWithDestination = (destination: Destination) => {
-    setEditingTrip({
+  const handleCreateTripWithDestination = (destinationName: string) => {
+    setPublicShareId(null);
+    const today = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(today.getDate() + 7);
+
+    const initialNewTrip: Trip = {
       id: `trip-${Date.now()}`,
-      name: `Trip to ${destination.city}`,
-      route: destination.city,
-      destinations: [destination.city],
+      name: `${destinationName} Discovery`,
+      route: destinationName,
       destinationCount: 1,
-      startDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      startDate: today.toISOString().split('T')[0],
+      endDate: futureDate.toISOString().split('T')[0],
       duration: '7 days',
       status: 'planning',
-      coverImage: destination.image,
-      progressPercentage: 25,
-      budgetTotal: 65000,
-      budgetSpent: 0,
+      coverImage:
+        'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80',
+      progressPercentage: 20,
+      budgetTotal: 3000,
+      budgetSpent: 450,
       currency: '₹',
-      description: `Exploring iconic landmarks, cuisine, and cultural highlights across ${destination.city}, ${destination.country}.`,
+      destinations: [destinationName],
       stops: [
         {
-          destinationId: destination.id,
-          city: destination.city,
-          country: destination.country,
+          id: `stop-${Date.now()}`,
+          city: destinationName,
+          durationDays: 7,
           order: 1,
         },
       ],
-    });
+      createdAt: new Date().toISOString(),
+    };
+
+    setEditingTrip(initialNewTrip);
     setPreviousSection('explore');
     setActiveSection('create-trip');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Module 6: Add Activity to a specific Trip & Stop
+  const handleOpenItinerary = (trip: Trip, defaultView: 'view' | 'builder' = 'view') => {
+    setPublicShareId(null);
+    setItineraryTrip(trip);
+    setPreviousSection(activeSection);
+    setActiveSection(defaultView === 'builder' ? 'itinerary-builder' : 'itinerary');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSaveItinerary = (updatedTrip: Trip) => {
+    setTrips((prevTrips) =>
+      prevTrips.map((t) => (t.id === updatedTrip.id ? updatedTrip : t))
+    );
+    setItineraryTrip(updatedTrip);
+  };
+
   const handleAddActivityToTrip = (
     tripId: string,
-    stopCity: string,
-    activity: Activity
+    activity: Activity,
+    dayNumber?: number,
+    date?: string
   ) => {
-    const newAssignment: TripActivityAssignment = {
-      id: `act-assign-${Date.now()}`,
-      activityId: activity.id,
-      destinationCity: stopCity || activity.destinationCity,
-      destinationId: activity.destinationId,
-      name: activity.name,
-      type: activity.type,
-      cost: activity.cost,
-      costTier: activity.costTier,
-      duration: activity.duration,
-      image: activity.image,
-      addedAt: new Date().toISOString(),
-    };
-
     setTrips((prevTrips) =>
       prevTrips.map((t) => {
         if (t.id !== tripId) return t;
 
         const currentActivities = t.activities || [];
-        const exists = currentActivities.some((a) => a.activityId === activity.id);
-        const updatedActivities = exists
-          ? currentActivities.map((a) =>
-              a.activityId === activity.id ? newAssignment : a
-            )
-          : [...currentActivities, newAssignment];
+        const isAlreadyAdded = currentActivities.some(
+          (act) => act.activityId === activity.id
+        );
+        if (isAlreadyAdded) return t;
 
-        // Also update stops if present
-        const updatedStops = t.stops?.map((stop) => {
-          if (stop.city.toLowerCase() === (stopCity || activity.destinationCity).toLowerCase()) {
-            const stopActivities = stop.activities || [];
-            const stopHasAct = stopActivities.some((a) => a.activityId === activity.id);
-            return {
-              ...stop,
-              activities: stopHasAct
-                ? stopActivities.map((a) => (a.activityId === activity.id ? newAssignment : a))
-                : [...stopActivities, newAssignment],
-            };
+        const newAssignment: TripActivityAssignment = {
+          id: `act-assign-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+          activityId: activity.id,
+          name: activity.name,
+          duration: activity.duration,
+          cost: activity.cost,
+          dayNumber: dayNumber || 1,
+          date: date || t.startDate,
+          startTime: '10:00 AM',
+          destinationCity: activity.destinationCity,
+          destinationId: activity.destinationId,
+          type: activity.type,
+          image: activity.image,
+          description: activity.description,
+        };
+
+        const updatedActivities = [...currentActivities, newAssignment];
+
+        let updatedStops = t.stops;
+        if (updatedStops && updatedStops.length > 0) {
+          const targetStopIndex = updatedStops.findIndex(
+            (s) => s.city.toLowerCase() === activity.destinationCity.toLowerCase()
+          );
+          if (targetStopIndex >= 0) {
+            const stop = updatedStops[targetStopIndex];
+            const stopActs = stop.activities || [];
+            if (!stopActs.some((a) => a.activityId === activity.id)) {
+              const updatedStop = {
+                ...stop,
+                activities: [...stopActs, newAssignment],
+              };
+              updatedStops = [
+                ...updatedStops.slice(0, targetStopIndex),
+                updatedStop,
+                ...updatedStops.slice(targetStopIndex + 1),
+              ];
+            }
           }
-          return stop;
-        });
+        }
 
         return {
           ...t,
@@ -322,31 +378,27 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     );
   };
 
-  // Module 6: Remove Activity from a Trip
-  const handleRemoveActivityFromTrip = (
-    tripId: string,
-    activityId: string,
-    stopCity?: string
-  ) => {
+  const handleRemoveActivityFromTrip = (tripId: string, activityId: string) => {
     setTrips((prevTrips) =>
       prevTrips.map((t) => {
         if (t.id !== tripId) return t;
 
-        const updatedActivities = (t.activities || []).filter(
-          (a) => a.activityId !== activityId
+        const currentActivities = t.activities || [];
+        const updatedActivities = currentActivities.filter(
+          (act) => act.activityId !== activityId && act.id !== activityId
         );
 
-        const updatedStops = t.stops?.map((stop) => {
-          if (!stopCity || stop.city.toLowerCase() === stopCity.toLowerCase()) {
-            return {
-              ...stop,
-              activities: (stop.activities || []).filter(
-                (a) => a.activityId !== activityId
-              ),
-            };
-          }
-          return stop;
-        });
+        let updatedStops = t.stops;
+        if (updatedStops) {
+          updatedStops = updatedStops.map((stop) => ({
+            ...stop,
+            activities: stop.activities
+              ? stop.activities.filter(
+                  (act) => act.activityId !== activityId && act.id !== activityId
+                )
+              : [],
+          }));
+        }
 
         return {
           ...t,
@@ -357,15 +409,79 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     );
   };
 
-  // Module 6: Navigate to Activities view pre-filtered by destination
   const handleExploreActivitiesForDestination = (destination: Destination) => {
+    setPublicShareId(null);
     setActivityDestinationCity(destination.city);
     setActiveSection('activities');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Module 10: Share Handlers
+  const handleOpenShareModal = (trip: Trip) => {
+    setShareModalTrip(trip);
+  };
+
+  const handleOpenPublicView = (shareId: string) => {
+    setPublicShareId(shareId);
+    if (typeof window !== 'undefined') {
+      window.location.hash = `#/share/${shareId}`;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleExitPublicView = () => {
+    setPublicShareId(null);
+    if (typeof window !== 'undefined') {
+      window.location.hash = '#/dashboard';
+    }
+    setActiveSection('dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePlanTripFromPublic = () => {
+    setPublicShareId(null);
+    if (typeof window !== 'undefined') {
+      window.location.hash = '';
+    }
+    handlePlanTrip();
+  };
+
+  const handleCopyTripFromPublic = (clonedTrip: Trip) => {
+    setTrips((prev) => [clonedTrip, ...prev]);
+    setNotificationMessage(`"${clonedTrip.name}" successfully added to your trip collection.`);
+    setItineraryTrip(clonedTrip);
+    setPublicShareId(null);
+    if (typeof window !== 'undefined') {
+      window.location.hash = '#/my-trips';
+    }
+    setActiveSection('my-trips');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCopyTripDirect = (sourceTrip: Trip) => {
+    const cloned = cloneTripForCopy(sourceTrip);
+    setTrips((prev) => [cloned, ...prev]);
+    setNotificationMessage(`"${cloned.name}" added to your trips.`);
+    setItineraryTrip(cloned);
+    setActiveSection('my-trips');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 0. IF PUBLIC SHARE VIEW IS ACTIVE: Render standalone public webpage (NO AUTH APP SHELL)
+  if (publicShareId) {
+    return (
+      <PublicItineraryView
+        shareId={publicShareId}
+        allTrips={trips}
+        onPlanYourOwnTrip={handlePlanTripFromPublic}
+        onCopyTripSuccess={handleCopyTripFromPublic}
+        onBackToApp={handleExitPublicView}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-row">
+    <div className="min-h-screen bg-slate-50 flex flex-row font-sans antialiased text-slate-900">
       {/* 1. Sidebar Navigation */}
       <Sidebar
         activeSection={activeSection}
@@ -386,6 +502,11 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
           onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
           onPlanTrip={handlePlanTrip}
           onLogout={onLogout}
+          onOpenSettings={() => {
+            setPublicShareId(null);
+            setActiveSection('settings');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
         />
 
         {/* Scrollable Body Content */}
@@ -405,6 +526,7 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
               onViewTrip={handleViewTrip}
               onBuildItinerary={handleOpenItinerary}
               onViewBudget={handleOpenBudget}
+              onShareTrip={handleOpenShareModal}
               onNavigateToExplore={() => {
                 setActiveSection('explore');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -429,12 +551,15 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
               onViewTrip={handleViewTrip}
               onDeleteTrip={handleDeleteTrip}
               onBuildItinerary={handleOpenItinerary}
+              onShareTrip={handleOpenShareModal}
               notificationMessage={notificationMessage}
               onDismissNotification={() => setNotificationMessage(null)}
             />
           ) : activeSection === 'explore' ? (
             <ExploreView
               trips={trips}
+              savedDestinationIds={savedDestinationIds}
+              onToggleSaveDestination={handleToggleSaveDestination}
               onAddDestinationToTrip={handleAddDestinationToTrip}
               onCreateTripWithDestination={handleCreateTripWithDestination}
               onViewTrip={handleViewTrip}
@@ -447,6 +572,21 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
               onAddActivityToTrip={handleAddActivityToTrip}
               onRemoveActivityFromTrip={handleRemoveActivityFromTrip}
               onCreateNewTrip={handlePlanTrip}
+            />
+          ) : activeSection === 'settings' ? (
+            <SettingsView
+              user={user}
+              onUpdateUser={onUpdateUser}
+              savedDestinations={savedDestinations}
+              onRemoveSavedDestination={handleRemoveSavedDestination}
+              onLogout={onLogout}
+              onDeleteAccount={onDeleteAccount}
+              onNavigateToExplore={() => {
+                setActiveSection('explore');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onAddToTrip={(dest) => handleCreateTripWithDestination(dest.city)}
+              onExploreActivities={handleExploreActivitiesForDestination}
             />
           ) : activeSection === 'itinerary' && (itineraryTrip || trips[0]) ? (
             <ItineraryViewScreen
@@ -461,6 +601,8 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               onSaveTrip={handleSaveItinerary}
+              onOpenPublicView={handleOpenPublicView}
+              onCopyTrip={handleCopyTripDirect}
               initialViewMode="list"
             />
           ) : activeSection === 'itinerary-builder' && (itineraryTrip || trips[0]) ? (
@@ -494,6 +636,8 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               onSaveTrip={handleSaveItinerary}
+              onOpenPublicView={handleOpenPublicView}
+              onCopyTrip={handleCopyTripDirect}
               initialViewMode="calendar"
             />
           ) : activeSection === 'create-trip' ? (
@@ -548,9 +692,28 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
           setViewingTrip(null);
           handleOpenItinerary(trip);
         }}
+        onShare={(trip) => {
+          setViewingTrip(null);
+          handleOpenShareModal(trip);
+        }}
       />
 
-      {/* Secondary Nav Item Feedback Modal for Calendar, Budget, Settings */}
+      {/* Global Share Trip Modal */}
+      <ShareTripModal
+        isOpen={!!shareModalTrip}
+        trip={shareModalTrip}
+        onClose={() => setShareModalTrip(null)}
+        onOpenPublicView={handleOpenPublicView}
+        onCopyTrip={handleCopyTripDirect}
+        onToggleShareStatus={(t, isShared) => {
+          handleUpdateTrip({
+            ...t,
+            isShared,
+          });
+        }}
+      />
+
+      {/* Secondary Nav Item Feedback Modal for Settings */}
       <PlaceholderModal
         isOpen={placeholderInfo.isOpen}
         onClose={() => setPlaceholderInfo({ ...placeholderInfo, isOpen: false })}
@@ -561,4 +724,3 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     </div>
   );
 };
-

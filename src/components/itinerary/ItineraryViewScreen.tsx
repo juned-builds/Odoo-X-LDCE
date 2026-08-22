@@ -41,6 +41,8 @@ interface ItineraryViewScreenProps {
   onEditItinerary: () => void;
   onSaveTrip: (updatedTrip: Trip) => void;
   initialViewMode?: 'list' | 'calendar';
+  onOpenPublicView?: (shareId: string) => void;
+  onCopyTrip?: (trip: Trip) => void;
 }
 
 export const ItineraryViewScreen: React.FC<ItineraryViewScreenProps> = ({
@@ -49,6 +51,8 @@ export const ItineraryViewScreen: React.FC<ItineraryViewScreenProps> = ({
   onEditItinerary,
   onSaveTrip,
   initialViewMode = 'list',
+  onOpenPublicView,
+  onCopyTrip,
 }) => {
   // 1. View Mode Switcher ('list' or 'calendar')
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>(initialViewMode);
@@ -505,6 +509,14 @@ export const ItineraryViewScreen: React.FC<ItineraryViewScreenProps> = ({
         isOpen={isShareModalOpen}
         trip={trip}
         onClose={() => setIsShareModalOpen(false)}
+        onOpenPublicView={onOpenPublicView}
+        onCopyTrip={onCopyTrip}
+        onToggleShareStatus={(t, isShared) => {
+          onSaveTrip({
+            ...t,
+            isShared,
+          });
+        }}
       />
 
       <ConfirmRemoveModal

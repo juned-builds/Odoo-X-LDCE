@@ -20,6 +20,7 @@ interface TopBarProps {
   onOpenMobileMenu: () => void;
   onPlanTrip: () => void;
   onLogout: () => void;
+  onOpenSettings?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -27,6 +28,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   onOpenMobileMenu,
   onPlanTrip,
   onLogout,
+  onOpenSettings,
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -170,12 +172,20 @@ export const TopBar: React.FC<TopBarProps> = ({
               setShowProfileMenu(!showProfileMenu);
               setShowNotifications(false);
             }}
-            className="flex items-center gap-2.5 p-1 pl-1.5 rounded-xl hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all"
+            className="flex items-center gap-2.5 p-1 pl-1.5 rounded-xl hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all cursor-pointer"
             aria-label="User profile menu"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-teal-600 to-emerald-500 text-white font-display font-bold text-xs flex items-center justify-center shadow-xs">
-              {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'E'}
-            </div>
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user.fullName || 'Explorer'}
+                className="w-8 h-8 rounded-full object-cover shadow-xs ring-1 ring-teal-500/40"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-teal-600 to-emerald-500 text-white font-display font-bold text-xs flex items-center justify-center shadow-xs">
+                {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'E'}
+              </div>
+            )}
             <div className="hidden md:block text-left">
               <p className="text-xs font-bold text-slate-800 leading-tight">
                 {user?.fullName || 'Explorer'}
@@ -195,8 +205,9 @@ export const TopBar: React.FC<TopBarProps> = ({
                 type="button"
                 onClick={() => {
                   setShowProfileMenu(false);
+                  onOpenSettings?.();
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 rounded-xl transition-colors text-left"
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 rounded-xl transition-colors text-left cursor-pointer"
               >
                 <User className="w-3.5 h-3.5 text-slate-400" />
                 <span>Profile Details</span>
@@ -206,11 +217,12 @@ export const TopBar: React.FC<TopBarProps> = ({
                 type="button"
                 onClick={() => {
                   setShowProfileMenu(false);
+                  onOpenSettings?.();
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 rounded-xl transition-colors text-left"
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 rounded-xl transition-colors text-left cursor-pointer"
               >
                 <Settings className="w-3.5 h-3.5 text-slate-400" />
-                <span>Preferences</span>
+                <span>Preferences & Settings</span>
               </button>
 
               <div className="pt-1 border-t border-slate-100">
@@ -220,7 +232,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                     setShowProfileMenu(false);
                     onLogout();
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-left font-medium"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-left font-medium cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5 text-rose-500" />
                   <span>Sign Out to Auth View</span>
