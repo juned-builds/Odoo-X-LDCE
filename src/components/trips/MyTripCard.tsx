@@ -9,6 +9,7 @@ import {
   Edit3,
   Sparkles,
   Layers,
+  Share2,
 } from 'lucide-react';
 import { Trip } from '../../types/dashboard';
 import { formatTripDateRange } from '../../utils/dateUtils';
@@ -20,6 +21,7 @@ interface MyTripCardProps {
   onEdit: (trip: Trip) => void;
   onDelete: (trip: Trip) => void;
   onBuildItinerary?: (trip: Trip) => void;
+  onShare?: (trip: Trip) => void;
 }
 
 export const MyTripCard: React.FC<MyTripCardProps> = ({
@@ -28,6 +30,7 @@ export const MyTripCard: React.FC<MyTripCardProps> = ({
   onEdit,
   onDelete,
   onBuildItinerary,
+  onShare,
 }) => {
   const getStatusBadge = (status: Trip['status']) => {
     switch (status) {
@@ -78,18 +81,35 @@ export const MyTripCard: React.FC<MyTripCardProps> = ({
             <span>{statusInfo.label}</span>
           </span>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(trip);
-            }}
-            className="p-2 rounded-xl bg-black/40 hover:bg-rose-600 text-white/80 hover:text-white backdrop-blur-md border border-white/10 shadow-xs transition-all active:scale-95 cursor-pointer"
-            title="Delete Trip"
-            aria-label={`Delete ${trip.name}`}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            {onShare && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShare(trip);
+                }}
+                className="p-2 rounded-xl bg-black/40 hover:bg-teal-600 text-white/90 hover:text-white backdrop-blur-md border border-white/10 shadow-xs transition-all active:scale-95 cursor-pointer"
+                title="Share Trip"
+                aria-label={`Share ${trip.name}`}
+              >
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(trip);
+              }}
+              className="p-2 rounded-xl bg-black/40 hover:bg-rose-600 text-white/80 hover:text-white backdrop-blur-md border border-white/10 shadow-xs transition-all active:scale-95 cursor-pointer"
+              title="Delete Trip"
+              aria-label={`Delete ${trip.name}`}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Bottom Overlay Info on Image */}

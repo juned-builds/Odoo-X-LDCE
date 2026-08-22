@@ -7,6 +7,7 @@ import {
   Sparkles,
   CheckCircle2,
   Luggage,
+  Share2,
 } from 'lucide-react';
 import { Trip } from '../../types/dashboard';
 import { formatTripDateRange } from '../../utils/dateUtils';
@@ -14,11 +15,13 @@ import { formatTripDateRange } from '../../utils/dateUtils';
 interface UpcomingTripCardProps {
   trip: Trip;
   onViewItinerary: (trip: Trip) => void;
+  onShareTrip?: (trip: Trip) => void;
 }
 
 export const UpcomingTripCard: React.FC<UpcomingTripCardProps> = ({
   trip,
   onViewItinerary,
+  onShareTrip,
 }) => {
   return (
     <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-300">
@@ -119,14 +122,28 @@ export const UpcomingTripCard: React.FC<UpcomingTripCardProps> = ({
               Budget Allocated: <strong className="text-slate-900 font-semibold">{trip.currency}{trip.budgetSpent.toLocaleString()}</strong> of {trip.currency}{trip.budgetTotal.toLocaleString()}
             </div>
 
-            <button
-              type="button"
-              onClick={() => onViewItinerary(trip)}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm hover:shadow flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-            >
-              <span>View Itinerary</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {onShareTrip && (
+                <button
+                  type="button"
+                  onClick={() => onShareTrip(trip)}
+                  className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  title="Share Itinerary"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Share</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => onViewItinerary(trip)}
+                className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm hover:shadow flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <span>View Itinerary</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

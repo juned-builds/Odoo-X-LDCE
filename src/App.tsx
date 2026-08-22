@@ -49,12 +49,12 @@ export default function App() {
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-semibold text-teal-400">GlobeTrotter Prototype</span>
             <span className="hidden sm:inline text-slate-400">|</span>
-            <span className="hidden sm:inline text-slate-300">Module 2 — Dashboard & App Shell Active</span>
+            <span className="hidden sm:inline text-slate-300">Modules 1–10 Active (Shared & Public Itinerary View)</span>
           </div>
           <button
             type="button"
             onClick={handleQuickDemoToggle}
-            className="text-[11px] font-medium text-teal-300 hover:text-white underline px-2 py-0.5 rounded hover:bg-slate-800 transition-colors"
+            className="text-[11px] font-medium text-teal-300 hover:text-white underline px-2 py-0.5 rounded hover:bg-slate-800 transition-colors cursor-pointer"
           >
             ← View Module 1 (Auth Screen)
           </button>

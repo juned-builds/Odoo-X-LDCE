@@ -28,6 +28,7 @@ interface DashboardViewProps {
   onViewTrip?: (trip: Trip) => void;
   onBuildItinerary?: (trip: Trip) => void;
   onViewBudget?: (trip: Trip) => void;
+  onShareTrip?: (trip: Trip) => void;
   onNavigateToExplore?: () => void;
 }
 
@@ -42,6 +43,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onViewTrip,
   onBuildItinerary,
   onViewBudget,
+  onShareTrip,
   onNavigateToExplore,
 }) => {
   const [modalState, setModalState] = useState<{
@@ -158,6 +160,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onViewTrip(trip);
               }
             }}
+            onShareTrip={onShareTrip}
           />
         </div>
 
