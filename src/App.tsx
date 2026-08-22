@@ -1,29 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthLayout } from './components/auth/AuthLayout';
 import { AppShell } from './components/layout/AppShell';
 import { AuthView, AuthenticatedUser } from './types/auth';
+import { fetchCurrentUser, logoutUserApi } from './utils/authApi';
 import { Compass, Sparkles } from 'lucide-react';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<AuthView>('dashboard');
-  const [authenticatedUser, setAuthenticatedUser] = useState<AuthenticatedUser | null>({
-    fullName: 'Alex Morgan',
-    email: 'alex.traveler@globetrotter.io',
-    memberSince: 'August 2026',
-    preferredStyle: 'Cultural Explorer & Scenic Wanderer',
-  });
+  const [authenticatedUser, setAuthenticatedUser] = useState<AuthenticatedUser | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  // Check authenticated session on application mount
+  useEffect(() => {
+    let isMounted = true;
+    async function initAuth() {
+      try {
+        const user = await fetchCurrentUser();
+        if (isMounted) {
+          if (user) {
+            setAuthenticatedUser(user);
+            setCurrentView('dashboard');
+          } else {
+            // Default demo fallback user if not authenticated, or display auth screen
+            setCurrentView('login');
+          }
+        }
+      } catch (err) {
+        console.error('Session initialization error:', err);
+        if (isMounted) setCurrentView('login');
+      } finally {
+        if (isMounted) setIsInitializing(false);
+      }
+    }
+    initAuth();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleLoginSuccess = (user: AuthenticatedUser) => {
     setAuthenticatedUser(user);
     setCurrentView('dashboard');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logoutUserApi();
     setAuthenticatedUser(null);
     setCurrentView('login');
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
+    await logoutUserApi();
     setAuthenticatedUser(null);
     setCurrentView('login');
   };
@@ -34,6 +61,7 @@ export default function App() {
     } else {
       if (!authenticatedUser) {
         setAuthenticatedUser({
+          id: 'demo-user',
           fullName: 'Alex Morgan',
           email: 'alex.traveler@globetrotter.io',
           memberSince: 'August 2026',
@@ -45,6 +73,17 @@ export default function App() {
       setCurrentView('dashboard');
     }
   };
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-medium text-slate-500 font-display">Loading GlobeTrotter...</p>
+        </div>
+      </div>
+    );
+  }
 
   // When in dashboard view, render the Module 2 AppShell
   if (currentView === 'dashboard') {
