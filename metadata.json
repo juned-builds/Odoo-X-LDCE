@@ -1,6 +1,6 @@
 {
   "name": "GlobeTrotter",
-  "description": "Empowering Personalized Travel Planning - Authentication & Visual Foundation",
+  "description": "GlobeTrotter Personalized Travel Planning - Authentication, Interactive Dashboard, Create Trip Planner & My Trips Management",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
