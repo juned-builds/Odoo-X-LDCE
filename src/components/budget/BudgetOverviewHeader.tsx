@@ -243,24 +243,23 @@ export const BudgetOverviewHeader: React.FC<BudgetOverviewHeaderProps> = ({
         </div>
 
         {/* 4. Average Cost Per Day */}
-        <div className="rounded-3xl bg-white border border-slate-200/90 shadow-sm p-5 sm:p-6 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-amber-600" />
-              <span>Average / Day</span>
+        <div className="rounded-3xl bg-white border border-slate-200/90 shadow-sm p-5 sm:p-6 space-y-3 min-w-0">
+          <div className="flex items-center justify-between min-w-0">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 min-w-0 truncate">
+              <Calendar className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span className="truncate">Average / Day</span>
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 shrink-0">
               {tripDurationDays} Days
             </span>
           </div>
 
-          <div>
-            <div className="text-2xl sm:text-3xl font-bold font-display text-slate-900">
-              {currency}
-              {averageDailyCost.toLocaleString()}
-              <span className="text-xs font-normal text-slate-500">/day</span>
+          <div className="min-w-0">
+            <div className="text-2xl sm:text-3xl font-bold font-display text-slate-900 flex flex-wrap items-baseline gap-x-1 min-w-0">
+              <span className="whitespace-nowrap">{currency}{averageDailyCost.toLocaleString()}</span>
+              <span className="text-xs font-normal text-slate-500 whitespace-nowrap">/day</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">
+            <p className="text-[11px] text-slate-500 mt-1 truncate">
               Target baseline: {currency}{baselineDailyBudget.toLocaleString()}/day
             </p>
           </div>
