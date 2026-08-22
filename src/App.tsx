@@ -56,7 +56,7 @@ export default function App() {
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-semibold text-teal-400">GlobeTrotter Prototype</span>
             <span className="hidden sm:inline text-slate-400">|</span>
-            <span className="hidden sm:inline text-slate-300">Modules 1–11 Active (Profile, Settings & Saved Destinations)</span>
+            <span className="hidden sm:inline text-slate-300">Modules 1–11 Active (Shared/Public Itinerary, Profile, Settings & Saved Destinations)</span>
           </div>
           <button
             type="button"
