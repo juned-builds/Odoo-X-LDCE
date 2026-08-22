@@ -9,6 +9,7 @@ import { ActivitiesView } from '../activities/ActivitiesView';
 import { ViewTripModal } from '../trips/ViewTripModal';
 import { ItineraryBuilderView } from '../itinerary/ItineraryBuilderView';
 import { ItineraryViewScreen } from '../itinerary/ItineraryViewScreen';
+import { BudgetViewScreen } from '../budget/BudgetViewScreen';
 import { PlaceholderModal } from '../common/PlaceholderModal';
 import { NavSection, Trip, Destination, TripActivityAssignment } from '../../types/dashboard';
 import { Activity } from '../../types/activity';
@@ -31,6 +32,7 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activityDestinationCity, setActivityDestinationCity] = useState<string>('Paris');
   const [itineraryTrip, setItineraryTrip] = useState<Trip | null>(null);
+  const [budgetTrip, setBudgetTrip] = useState<Trip | null>(null);
 
   const [placeholderInfo, setPlaceholderInfo] = useState<{
     isOpen: boolean;
@@ -52,6 +54,9 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     if (section !== 'itinerary' && section !== 'itinerary-builder' && section !== 'calendar') {
       setItineraryTrip(null);
     }
+    if (section !== 'budget') {
+      setBudgetTrip(null);
+    }
 
     if (
       section !== 'dashboard' &&
@@ -61,10 +66,10 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
       section !== 'activities' &&
       section !== 'itinerary' &&
       section !== 'itinerary-builder' &&
-      section !== 'calendar'
+      section !== 'calendar' &&
+      section !== 'budget'
     ) {
       const sectionLabels: Record<string, string> = {
-        budget: 'Budget & Expense Management',
         settings: 'Preferences & Account Settings',
       };
 
@@ -74,6 +79,30 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
         description: `The ${sectionLabels[section]} screen is planned for later development modules. You can explore destinations, plan journeys, and manage your full trip collection.`,
         moduleName: `Module: ${sectionLabels[section]}`,
       });
+    }
+  };
+
+  const handleOpenBudget = (trip?: Trip) => {
+    if (trip) {
+      setBudgetTrip(trip);
+    }
+    setPreviousSection(activeSection === 'budget' ? 'dashboard' : activeSection);
+    setActiveSection('budget');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateTrip = (updatedTrip: Trip) => {
+    setTrips((prevTrips) =>
+      prevTrips.map((t) => (t.id === updatedTrip.id ? updatedTrip : t))
+    );
+    if (budgetTrip?.id === updatedTrip.id) {
+      setBudgetTrip(updatedTrip);
+    }
+    if (itineraryTrip?.id === updatedTrip.id) {
+      setItineraryTrip(updatedTrip);
+    }
+    if (viewingTrip?.id === updatedTrip.id) {
+      setViewingTrip(updatedTrip);
     }
   };
 
@@ -375,10 +404,22 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
               onEditTrip={handleEditTrip}
               onViewTrip={handleViewTrip}
               onBuildItinerary={handleOpenItinerary}
+              onViewBudget={handleOpenBudget}
               onNavigateToExplore={() => {
                 setActiveSection('explore');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
+            />
+          ) : activeSection === 'budget' ? (
+            <BudgetViewScreen
+              initialTrip={budgetTrip || itineraryTrip || trips[0]}
+              trips={trips}
+              onUpdateTrip={handleUpdateTrip}
+              onBack={() => {
+                setActiveSection(previousSection === 'budget' ? 'dashboard' : previousSection);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onNavigateToItinerary={(trip) => handleOpenItinerary(trip, 'view')}
             />
           ) : activeSection === 'my-trips' ? (
             <MyTripsView
@@ -520,3 +561,4 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     </div>
   );
 };
+

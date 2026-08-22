@@ -90,6 +90,41 @@ export function formatTripShortDate(dateStr: string): string {
   });
 }
 
+export function formatDateForDisplay(dateStr: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+export function getDatesBetween(startDateStr: string, endDateStr: string): string[] {
+  if (!startDateStr || !endDateStr) return [];
+  const start = new Date(startDateStr);
+  const end = new Date(endDateStr);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return [startDateStr];
+  }
+
+  start.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+
+  const dates: string[] = [];
+  const current = new Date(start);
+
+  while (current <= end) {
+    dates.push(current.toISOString().split('T')[0]);
+    current.setDate(current.getDate() + 1);
+  }
+
+  return dates.length > 0 ? dates : [startDateStr];
+}
+
 export function formatTripDateRange(startDateStr: string, endDateStr: string): string {
   if (!startDateStr && !endDateStr) return 'Flexible Dates';
   if (!startDateStr) return `Until ${formatTripShortDate(endDateStr)}`;

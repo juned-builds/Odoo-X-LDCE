@@ -16,6 +16,12 @@ export const ShareTripModal: React.FC<ShareTripModalProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
+  const handleClose = () => {
+    if (typeof onClose === 'function') {
+      onClose();
+    }
+  };
+
   if (!isOpen || !trip) return null;
 
   const simulatedShareUrl = `${window.location.origin}/share/trip/${trip.id || 'globetrotter-demo'}`;
@@ -52,7 +58,7 @@ export const ShareTripModal: React.FC<ShareTripModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Close share modal"
           >
@@ -110,7 +116,7 @@ export const ShareTripModal: React.FC<ShareTripModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
-          <Button variant="primary" size="sm" onClick={onClose}>
+          <Button variant="primary" size="sm" onClick={handleClose}>
             Done
           </Button>
         </div>
