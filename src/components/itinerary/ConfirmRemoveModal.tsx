@@ -4,27 +4,45 @@ import { Button } from '../ui/Button';
 
 interface ConfirmRemoveModalProps {
   isOpen: boolean;
-  activityName: string;
-  dayNumber: number;
-  onClose: () => void;
+  activityName?: string;
+  dayNumber?: number;
+  title?: string;
+  message?: string;
+  confirmLabel?: string;
+  onClose?: () => void;
+  onCancel?: () => void;
   onConfirm: () => void;
 }
 
 export const ConfirmRemoveModal: React.FC<ConfirmRemoveModalProps> = ({
   isOpen,
-  activityName,
-  dayNumber,
+  activityName = 'this activity',
+  dayNumber = 1,
+  title,
+  message,
+  confirmLabel = 'Remove Activity',
   onClose,
+  onCancel,
   onConfirm,
 }) => {
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    if (typeof onClose === 'function') {
+      onClose();
+    } else if (typeof onCancel === 'function') {
+      onCancel();
+    }
+  };
+
+  const modalTitle = title || `Remove activity from Day ${dayNumber}?`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Modal Card */}
@@ -36,8 +54,8 @@ export const ConfirmRemoveModal: React.FC<ConfirmRemoveModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors"
+            onClick={handleClose}
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -46,10 +64,18 @@ export const ConfirmRemoveModal: React.FC<ConfirmRemoveModalProps> = ({
 
         <div className="space-y-2">
           <h3 className="text-lg font-bold font-display text-slate-900">
-            Remove activity from Day {dayNumber}?
+            {modalTitle}
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            Are you sure you want to remove <strong className="text-slate-900 font-semibold">"{activityName}"</strong> from Day {dayNumber}'s itinerary?
+            {message ? (
+              message
+            ) : (
+              <>
+                Are you sure you want to remove{' '}
+                <strong className="text-slate-900 font-semibold">"{activityName}"</strong> from Day{' '}
+                {dayNumber}'s itinerary?
+              </>
+            )}
           </p>
           <p className="text-[11px] text-slate-400 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
             This only removes the activity assignment for this specific day. The underlying destination and trip will remain unaffected.
@@ -57,19 +83,21 @@ export const ConfirmRemoveModal: React.FC<ConfirmRemoveModalProps> = ({
         </div>
 
         <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
-          <Button variant="outline" size="sm" onClick={onClose}>
+          <Button variant="outline" size="sm" onClick={handleClose}>
             Cancel
           </Button>
 
           <button
             type="button"
             onClick={() => {
-              onConfirm();
-              onClose();
+              if (typeof onConfirm === 'function') {
+                onConfirm();
+              }
+              handleClose();
             }}
             className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs hover:shadow transition-all active:scale-95 cursor-pointer"
           >
-            Remove Activity
+            {confirmLabel}
           </button>
         </div>
       </div>
