@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { createApp } from './src/server/app.ts';
@@ -8,11 +9,17 @@ import { closePool, checkDatabaseConnection } from './src/db/index.ts';
 async function startServer() {
   const app = createApp();
   const PORT = config.port;
+  const httpServer = http.createServer(app);
 
   // Vite middleware for development, or static file serving in production
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: {
+          server: httpServer,
+        },
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -24,7 +31,7 @@ async function startServer() {
     });
   }
 
-  const server = app.listen(PORT, '0.0.0.0', async () => {
+  httpServer.listen(PORT, '0.0.0.0', async () => {
     console.log(`[GlobeTrotter] Application running on http://0.0.0.0:${PORT}`);
     const isDbConnected = await checkDatabaseConnection();
     console.log(`[Database] PostgreSQL status: ${isDbConnected ? 'CONNECTED' : 'DISCONNECTED'}`);
@@ -35,7 +42,7 @@ async function startServer() {
     if (isShuttingDown) return;
     isShuttingDown = true;
     console.log(`\n[GlobeTrotter] Received ${signal}. Shutting down gracefully...`);
-    server.close(async () => {
+    httpServer.close(async () => {
       console.log('[GlobeTrotter] HTTP server closed.');
       try {
         await closePool();

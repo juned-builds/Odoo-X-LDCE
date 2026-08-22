@@ -6,6 +6,7 @@ import { Button } from '../ui/Button';
 import { Checkbox } from '../ui/Checkbox';
 import { Alert } from '../ui/Alert';
 import { AuthView, FormErrors, LoginFormData, AuthenticatedUser } from '../../types/auth';
+import { loginUserApi } from '../../utils/authApi';
 
 interface LoginFormProps {
   onNavigate: (view: AuthView) => void;
@@ -51,26 +52,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onNavigate, onSuccess }) =
 
     setIsLoading(true);
 
-    // Simulate authentication delay for smooth UX demonstration
-    setTimeout(() => {
+    try {
+      const authenticatedUser = await loginUserApi(formData.email.trim(), formData.password);
       setIsLoading(false);
-      
-      // Simulate realistic login validation
-      if (formData.password === 'error') {
-        setGeneralError('Invalid email or password combination. Try demo credentials.');
-        return;
-      }
-
-      const displayName = formData.email.split('@')[0].replace(/[._]/g, ' ') || 'Traveler';
-      const formattedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-
-      onSuccess({
-        fullName: formattedName,
-        email: formData.email,
-        memberSince: 'August 2026',
-        preferredStyle: 'Cultural Explorer & Slow Travel',
-      });
-    }, 850);
+      onSuccess(authenticatedUser);
+    } catch (err: any) {
+      setIsLoading(false);
+      setGeneralError(err.message || 'Invalid email or password combination.');
+    }
   };
 
   const handleDemoFill = () => {
