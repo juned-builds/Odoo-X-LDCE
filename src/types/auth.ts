@@ -28,4 +28,7 @@ export interface AuthenticatedUser {
   avatarUrl?: string;
   memberSince: string;
   preferredStyle?: string;
+  language?: string;
+  homeCity?: string;
+  bio?: string;
 }

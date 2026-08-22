@@ -166,19 +166,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="pt-4 border-t border-slate-100 space-y-3">
         {/* Prototype stage indicator banner */}
         <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-xs text-slate-600">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold text-slate-700 truncate">Module 8 Active</p>
-            <p className="text-[10px] text-slate-400 truncate">Itinerary & Timeline</p>
+            <p className="text-[11px] font-semibold text-slate-700 truncate">Module 11 Active</p>
+            <p className="text-[10px] text-slate-400 truncate">Profile & Settings</p>
           </div>
         </div>
 
         {/* User Card */}
         <div className="p-2 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between gap-2 shadow-xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-teal-600 to-emerald-500 text-white font-display font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-              {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'E'}
-            </div>
+          <button
+            type="button"
+            onClick={() => handleNavClick('settings')}
+            className="flex items-center gap-2.5 min-w-0 flex-1 text-left hover:opacity-80 transition-opacity cursor-pointer"
+            title="Open Profile & Settings"
+          >
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user.fullName || 'Explorer'}
+                className="w-8 h-8 rounded-full object-cover shrink-0 shadow-xs ring-1 ring-teal-500/40"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-teal-600 to-emerald-500 text-white font-display font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'E'}
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-slate-800 truncate">
                 {user?.fullName || 'Explorer'}
@@ -187,7 +200,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {user?.email || 'wanderer@demo.io'}
               </p>
             </div>
-          </div>
+          </button>
 
           <button
             type="button"

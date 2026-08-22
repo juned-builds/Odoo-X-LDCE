@@ -37,6 +37,8 @@ interface ExploreViewProps {
   onCreateTripWithDestination?: (destination: Destination) => void;
   onViewTrip?: (trip: Trip) => void;
   onExploreActivities?: (destination: Destination) => void;
+  savedDestinationIds?: string[];
+  onToggleSaveDestination?: (destination: Destination) => void;
 }
 
 export const ExploreView: React.FC<ExploreViewProps> = ({
@@ -45,6 +47,8 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
   onCreateTripWithDestination,
   onViewTrip,
   onExploreActivities,
+  savedDestinationIds = [],
+  onToggleSaveDestination,
 }) => {
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
@@ -553,6 +557,8 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
             <DestinationCard
               key={dest.id}
               destination={dest}
+              isSaved={savedDestinationIds.includes(dest.id)}
+              onToggleSave={onToggleSaveDestination}
               onViewDetails={(destination) => setSelectedDetailDest(destination)}
               onAddToTrip={(destination) => handleAddToTripClick(destination)}
             />
@@ -564,6 +570,8 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
       <DestinationDetailModal
         isOpen={!!selectedDetailDest}
         destination={selectedDetailDest}
+        isSaved={selectedDetailDest ? savedDestinationIds.includes(selectedDetailDest.id) : false}
+        onToggleSave={onToggleSaveDestination}
         onClose={() => setSelectedDetailDest(null)}
         onExploreActivities={onExploreActivities}
         onAddToTrip={(destination) => {
