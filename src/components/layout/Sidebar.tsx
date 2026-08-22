@@ -163,16 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer / User Profile & Sign Out */}
-      <div className="pt-4 border-t border-slate-100 space-y-3">
-        {/* Prototype stage indicator banner */}
-        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-xs text-slate-600">
-          <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse shrink-0" />
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold text-slate-700 truncate">Module 11 Active</p>
-            <p className="text-[10px] text-slate-400 truncate">Profile & Settings</p>
-          </div>
-        </div>
-
+      <div className="pt-4 border-t border-slate-100">
         {/* User Card */}
         <div className="p-2 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between gap-2 shadow-xs">
           <button

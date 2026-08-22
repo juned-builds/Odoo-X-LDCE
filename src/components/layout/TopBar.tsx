@@ -135,7 +135,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             <div className="absolute right-0 mt-2 w-80 rounded-2xl bg-white shadow-xl border border-slate-200 p-4 z-40 space-y-3 animate-fadeIn">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Notifications (Demo)
+                  Notifications
                 </h4>
                 <span className="text-[10px] text-teal-600 font-semibold cursor-pointer hover:underline">
                   Mark all as read

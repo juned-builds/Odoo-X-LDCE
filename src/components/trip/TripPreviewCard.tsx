@@ -136,13 +136,12 @@ export const TripPreviewCard: React.FC<TripPreviewCardProps> = ({
             </div>
           </div>
 
-          {/* Quick Prototype Guidance Footer */}
+          {/* Status Footer */}
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
             <div className="flex items-center gap-1.5">
               <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
               <span>Ready for itinerary scheduling</span>
             </div>
-            <span className="text-slate-400">Module 3 Scope</span>
           </div>
         </div>
       </div>

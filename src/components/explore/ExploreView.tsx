@@ -520,7 +520,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
         </p>
 
         <span className="text-xs text-slate-400 font-medium">
-          Global prototype catalog
+          Global destination catalog
         </span>
       </div>
 

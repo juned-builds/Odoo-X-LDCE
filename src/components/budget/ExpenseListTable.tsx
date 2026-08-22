@@ -288,7 +288,7 @@ export const ExpenseListTable: React.FC<ExpenseListTableProps> = ({
                         ) : (
                           <span
                             className="text-[10px] text-slate-400 font-medium italic"
-                            title="Synced from itinerary activities in Module 7/8"
+                            title="Synced from itinerary activities"
                           >
                             Synced Activity
                           </span>

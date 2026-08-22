@@ -27,14 +27,14 @@ export const AuthSuccessView: React.FC<AuthSuccessViewProps> = ({ user, onLogout
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">
-              Demo Authentication Success
+              Authentication Successful
             </span>
             <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-100/70 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">
-              <ShieldCheck className="w-3 h-3" /> Demo Session Active
+              <ShieldCheck className="w-3 h-3" /> Session Active
             </span>
           </div>
           <p className="text-xs text-emerald-700/90 truncate mt-0.5">
-            Module 1 Authentication & Visual Foundation prototype ready
+            Your travel workspace is ready
           </p>
         </div>
       </div>
@@ -72,17 +72,6 @@ export const AuthSuccessView: React.FC<AuthSuccessViewProps> = ({ user, onLogout
             <div className="font-semibold text-slate-800 truncate">{user.preferredStyle || 'Personalized Explorer'}</div>
           </div>
         </div>
-
-        {/* Readiness Note */}
-        <div className="p-3.5 rounded-xl bg-slate-900 text-white text-xs space-y-2">
-          <div className="flex items-center gap-2 font-semibold text-emerald-400">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Ready for Next Development Module</span>
-          </div>
-          <p className="text-slate-300 text-[11px] leading-relaxed">
-            Frontend foundation, design system tokens, and authentication UX flows are fully implemented and responsive. Future modules will attach itineraries, trip creation, and AI planning.
-          </p>
-        </div>
       </div>
 
       {/* Actions */}
@@ -96,7 +85,7 @@ export const AuthSuccessView: React.FC<AuthSuccessViewProps> = ({ user, onLogout
             onClick={onEnterDashboard}
             rightIcon={<Compass className="w-4 h-4" />}
           >
-            Enter Dashboard (Module 2)
+            Enter Dashboard
           </Button>
         )}
         <Button
@@ -107,7 +96,7 @@ export const AuthSuccessView: React.FC<AuthSuccessViewProps> = ({ user, onLogout
           onClick={onLogout}
           leftIcon={<LogOut className="w-4 h-4" />}
         >
-          Sign Out / Test Auth Flows
+          Sign Out
         </Button>
       </div>
     </motion.div>
