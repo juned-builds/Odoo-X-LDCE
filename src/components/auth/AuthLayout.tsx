@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Heart, Sparkles } from 'lucide-react';
+import { Compass, Heart, Sparkles } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { TravelShowcase } from './TravelShowcase';
 import { AuthView, AuthenticatedUser } from '../../types/auth';
@@ -97,8 +97,8 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           {/* Footer Area */}
           <div className="pt-6 sm:pt-8 mt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
             <div className="flex items-center gap-1.5 font-medium">
-              <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
-              <span>256-bit encrypted travel privacy</span>
+              <Compass className="w-3.5 h-3.5 text-teal-600" />
+              <span>Personalized travel planning prototype</span>
             </div>
             
             <div className="flex items-center gap-3">

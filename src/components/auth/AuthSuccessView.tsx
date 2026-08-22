@@ -26,14 +26,14 @@ export const AuthSuccessView: React.FC<AuthSuccessViewProps> = ({ user, onLogout
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">
-              Authentication Verified
+              Demo Authentication Success
             </span>
             <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-100/70 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">
               <ShieldCheck className="w-3 h-3" /> Demo Session Active
             </span>
           </div>
           <p className="text-xs text-emerald-700/90 truncate mt-0.5">
-            Module 1 Authentication & Visual Foundation verified successfully
+            Module 1 Authentication & Visual Foundation prototype ready
           </p>
         </div>
       </div>

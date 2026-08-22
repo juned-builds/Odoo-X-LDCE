@@ -148,7 +148,7 @@ export const TravelShowcase: React.FC = () => {
           <div className="inline-flex items-center gap-1.5 text-xs bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 text-slate-100">
             <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
             <span className="font-semibold">{current.rating}</span>
-            <span className="text-slate-300 font-light">rating</span>
+            <span className="text-slate-300 font-light">sample rating</span>
           </div>
 
           <div className="inline-flex items-center gap-1.5 text-xs bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 text-slate-100">
@@ -158,7 +158,7 @@ export const TravelShowcase: React.FC = () => {
 
           <div className="inline-flex items-center gap-1.5 text-xs bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 text-slate-100">
             <Shield className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Verified Gems</span>
+            <span>Sample Route</span>
           </div>
         </div>
       </div>
@@ -189,14 +189,14 @@ export const TravelShowcase: React.FC = () => {
             </div>
             <div className="flex items-center gap-1 text-[11px] text-teal-300 font-medium">
               <Globe className="w-3 h-3" />
-              <span>GlobeTrotter Verified</span>
+              <span>Sample Traveler Story</span>
             </div>
           </div>
         </motion.div>
 
         {/* Footnote */}
         <p className="text-[11px] text-slate-400 mt-4 text-center font-normal">
-          Explore hundreds of bespoke routes, curated restaurants, and secret scenic stops.
+          Explore sample destinations and curated travel concepts in this prototype.
         </p>
       </div>
     </div>
