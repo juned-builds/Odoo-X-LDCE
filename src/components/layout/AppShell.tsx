@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { DashboardView } from '../dashboard/DashboardView';
@@ -12,19 +12,28 @@ import { ItineraryViewScreen } from '../itinerary/ItineraryViewScreen';
 import { BudgetViewScreen } from '../budget/BudgetViewScreen';
 import { PublicItineraryView } from '../share/PublicItineraryView';
 import { ShareTripModal } from '../share/ShareTripModal';
+import { SettingsView } from '../settings/SettingsView';
 import { PlaceholderModal } from '../common/PlaceholderModal';
 import { NavSection, Trip, Destination, TripActivityAssignment } from '../../types/dashboard';
 import { Activity } from '../../types/activity';
 import { AuthenticatedUser } from '../../types/auth';
 import { MOCK_RECENT_TRIPS } from '../../data/mockDashboardData';
+import { ALL_DESTINATIONS } from '../../data/destinationsData';
 import { getTripShareId, cloneTripForCopy } from '../../utils/shareUtils';
 
 interface AppShellProps {
   user: AuthenticatedUser | null;
   onLogout: () => void;
+  onUpdateUser?: (updatedUser: AuthenticatedUser) => void;
+  onDeleteAccount?: () => void;
 }
 
-export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
+export const AppShell: React.FC<AppShellProps> = ({
+  user,
+  onLogout,
+  onUpdateUser,
+  onDeleteAccount,
+}) => {
   const [activeSection, setActiveSection] = useState<NavSection>('dashboard');
   const [trips, setTrips] = useState<Trip[]>(MOCK_RECENT_TRIPS);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
@@ -36,6 +45,32 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
   const [activityDestinationCity, setActivityDestinationCity] = useState<string>('Paris');
   const [itineraryTrip, setItineraryTrip] = useState<Trip | null>(null);
   const [budgetTrip, setBudgetTrip] = useState<Trip | null>(null);
+
+  // Module 11: Saved Destinations state
+  const [savedDestinationIds, setSavedDestinationIds] = useState<string[]>([
+    'dest-tokyo',
+    'dest-santorini',
+    'dest-swiss-alps',
+  ]);
+
+  // Derived saved destinations list
+  const savedDestinations = useMemo(() => {
+    return ALL_DESTINATIONS.filter((d) => savedDestinationIds.includes(d.id));
+  }, [savedDestinationIds]);
+
+  const handleToggleSaveDestination = (destination: Destination) => {
+    setSavedDestinationIds((prev) => {
+      if (prev.includes(destination.id)) {
+        return prev.filter((id) => id !== destination.id);
+      } else {
+        return [...prev, destination.id];
+      }
+    });
+  };
+
+  const handleRemoveSavedDestination = (destinationId: string) => {
+    setSavedDestinationIds((prev) => prev.filter((id) => id !== destinationId));
+  };
 
   // Module 10: Shared / Public Itinerary State
   const [shareModalTrip, setShareModalTrip] = useState<Trip | null>(null);
@@ -101,17 +136,14 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
       section !== 'itinerary' &&
       section !== 'itinerary-builder' &&
       section !== 'calendar' &&
-      section !== 'budget'
+      section !== 'budget' &&
+      section !== 'settings'
     ) {
-      const sectionLabels: Record<string, string> = {
-        settings: 'Preferences & Account Settings',
-      };
-
       setPlaceholderInfo({
         isOpen: true,
-        title: sectionLabels[section] || 'Upcoming Screen',
-        description: `The ${sectionLabels[section]} screen is planned for later development modules. You can explore destinations, plan journeys, and manage your full trip collection.`,
-        moduleName: `Module: ${sectionLabels[section]}`,
+        title: 'Upcoming Screen',
+        description: 'This screen is planned for subsequent development modules.',
+        moduleName: 'Module: Feature Screen',
       });
     }
   };
@@ -470,6 +502,11 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
           onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
           onPlanTrip={handlePlanTrip}
           onLogout={onLogout}
+          onOpenSettings={() => {
+            setPublicShareId(null);
+            setActiveSection('settings');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
         />
 
         {/* Scrollable Body Content */}
@@ -521,6 +558,8 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
           ) : activeSection === 'explore' ? (
             <ExploreView
               trips={trips}
+              savedDestinationIds={savedDestinationIds}
+              onToggleSaveDestination={handleToggleSaveDestination}
               onAddDestinationToTrip={handleAddDestinationToTrip}
               onCreateTripWithDestination={handleCreateTripWithDestination}
               onViewTrip={handleViewTrip}
@@ -533,6 +572,21 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
               onAddActivityToTrip={handleAddActivityToTrip}
               onRemoveActivityFromTrip={handleRemoveActivityFromTrip}
               onCreateNewTrip={handlePlanTrip}
+            />
+          ) : activeSection === 'settings' ? (
+            <SettingsView
+              user={user}
+              onUpdateUser={onUpdateUser}
+              savedDestinations={savedDestinations}
+              onRemoveSavedDestination={handleRemoveSavedDestination}
+              onLogout={onLogout}
+              onDeleteAccount={onDeleteAccount}
+              onNavigateToExplore={() => {
+                setActiveSection('explore');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onAddToTrip={(dest) => handleCreateTripWithDestination(dest.city)}
+              onExploreActivities={handleExploreActivitiesForDestination}
             />
           ) : activeSection === 'itinerary' && (itineraryTrip || trips[0]) ? (
             <ItineraryViewScreen

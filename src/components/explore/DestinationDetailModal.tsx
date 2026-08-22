@@ -11,6 +11,7 @@ import {
   TrendingUp,
   DollarSign,
   Tag,
+  Bookmark,
 } from 'lucide-react';
 import { Destination } from '../../types/dashboard';
 import { Button } from '../ui/Button';
@@ -21,6 +22,8 @@ interface DestinationDetailModalProps {
   onClose: () => void;
   onAddToTrip: (destination: Destination) => void;
   onExploreActivities?: (destination: Destination) => void;
+  isSaved?: boolean;
+  onToggleSave?: (destination: Destination) => void;
 }
 
 export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
@@ -29,6 +32,8 @@ export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
   onClose,
   onAddToTrip,
   onExploreActivities,
+  isSaved = false,
+  onToggleSave,
 }) => {
   if (!isOpen || !destination) return null;
 
@@ -67,15 +72,33 @@ export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-black/30" />
 
-          {/* Close Button */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2.5 rounded-2xl bg-black/50 hover:bg-black/70 text-white backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-md"
-            aria-label="Close details"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          {/* Action buttons on cover: Close and Bookmark */}
+          <div className="absolute top-4 right-4 flex items-center gap-2">
+            {onToggleSave && (
+              <button
+                type="button"
+                onClick={() => onToggleSave(destination)}
+                className={`p-2.5 rounded-2xl backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-md flex items-center gap-1.5 text-xs font-semibold ${
+                  isSaved
+                    ? 'bg-teal-600 text-white ring-2 ring-teal-300/60'
+                    : 'bg-black/50 hover:bg-black/70 text-white'
+                }`}
+                title={isSaved ? 'Remove from Saved' : 'Save Destination'}
+              >
+                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-white stroke-white' : 'stroke-current'}`} />
+                <span className="hidden sm:inline">{isSaved ? 'Saved' : 'Save'}</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2.5 rounded-2xl bg-black/50 hover:bg-black/70 text-white backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-md"
+              aria-label="Close details"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
 
           {/* Top Badges */}
           <div className="absolute top-4 left-4 flex items-center gap-2">
@@ -217,9 +240,23 @@ export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
 
         {/* Modal Footer Actions */}
         <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
-          <Button variant="outline" size="sm" onClick={onClose}>
-            Close
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={onClose}>
+              Close
+            </Button>
+
+            {onToggleSave && (
+              <Button
+                variant={isSaved ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => onToggleSave(destination)}
+                leftIcon={<Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-white stroke-white' : 'stroke-current'}`} />}
+                className={isSaved ? 'bg-teal-600 hover:bg-teal-700 text-white' : ''}
+              >
+                {isSaved ? 'Saved Destination' : 'Save Destination'}
+              </Button>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             {onExploreActivities && (

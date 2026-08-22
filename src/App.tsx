@@ -23,6 +23,11 @@ export default function App() {
     setCurrentView('login');
   };
 
+  const handleDeleteAccount = () => {
+    setAuthenticatedUser(null);
+    setCurrentView('login');
+  };
+
   const handleQuickDemoToggle = () => {
     if (currentView === 'dashboard') {
       setCurrentView('login');
@@ -33,6 +38,8 @@ export default function App() {
           email: 'alex.traveler@globetrotter.io',
           memberSince: 'August 2026',
           preferredStyle: 'Cultural Explorer & Scenic Wanderer',
+          language: 'en',
+          homeCity: 'San Francisco, CA',
         });
       }
       setCurrentView('dashboard');
@@ -49,7 +56,7 @@ export default function App() {
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-semibold text-teal-400">GlobeTrotter Prototype</span>
             <span className="hidden sm:inline text-slate-400">|</span>
-            <span className="hidden sm:inline text-slate-300">Modules 1–10 Active (Shared & Public Itinerary View)</span>
+            <span className="hidden sm:inline text-slate-300">Modules 1–11 Active (Profile, Settings & Saved Destinations)</span>
           </div>
           <button
             type="button"
@@ -60,7 +67,12 @@ export default function App() {
           </button>
         </div>
 
-        <AppShell user={authenticatedUser} onLogout={handleLogout} />
+        <AppShell
+          user={authenticatedUser}
+          onUpdateUser={(updated) => setAuthenticatedUser(updated)}
+          onLogout={handleLogout}
+          onDeleteAccount={handleDeleteAccount}
+        />
       </div>
     );
   }

@@ -8,6 +8,7 @@ import {
   ArrowRight,
   TrendingUp,
   Compass,
+  Bookmark,
 } from 'lucide-react';
 import { Destination } from '../../types/dashboard';
 
@@ -15,12 +16,16 @@ interface DestinationCardProps {
   destination: Destination;
   onViewDetails: (destination: Destination) => void;
   onAddToTrip: (destination: Destination) => void;
+  isSaved?: boolean;
+  onToggleSave?: (destination: Destination) => void;
 }
 
 export const DestinationCard: React.FC<DestinationCardProps> = ({
   destination,
   onViewDetails,
   onAddToTrip,
+  isSaved = false,
+  onToggleSave,
 }) => {
   const getCostBadgeColor = (cost: Destination['costIndex']) => {
     switch (cost) {
@@ -38,7 +43,7 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
   };
 
   return (
-    <div className="group rounded-3xl bg-white border border-slate-200/90 hover:border-teal-400/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
+    <div className="group rounded-3xl bg-white border border-slate-200/90 hover:border-teal-400/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative">
       {/* Visual Cover Header */}
       <div className="relative h-52 w-full overflow-hidden bg-slate-900">
         <img
@@ -49,14 +54,14 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-black/20" />
 
-        {/* Top Badges */}
-        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between">
+        {/* Top Badges & Save Action */}
+        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2">
           {/* Region Pill */}
           <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/50 text-white backdrop-blur-md border border-white/10 tracking-wide">
             {destination.region}
           </span>
 
-          {/* Rating & Cost Badge */}
+          {/* Rating & Bookmark */}
           <div className="flex items-center gap-1.5">
             <span
               className={`px-2 py-0.5 rounded-full text-[11px] font-bold border backdrop-blur-md ${getCostBadgeColor(
@@ -70,6 +75,27 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
               <Star className="w-3 h-3 fill-slate-950 text-slate-950" />
               <span>{destination.rating.toFixed(1)}</span>
             </span>
+
+            {onToggleSave && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleSave(destination);
+                }}
+                className={`p-1.5 rounded-full backdrop-blur-md transition-all active:scale-90 cursor-pointer ${
+                  isSaved
+                    ? 'bg-teal-500 text-white shadow-md ring-2 ring-teal-300/60'
+                    : 'bg-black/40 hover:bg-black/60 text-white/90 border border-white/20'
+                }`}
+                title={isSaved ? 'Remove from Saved Destinations' : 'Save Destination'}
+                aria-label={isSaved ? 'Remove from saved' : 'Save destination'}
+              >
+                <Bookmark
+                  className={`w-3.5 h-3.5 ${isSaved ? 'fill-white stroke-white' : 'stroke-current'}`}
+                />
+              </button>
+            )}
           </div>
         </div>
 

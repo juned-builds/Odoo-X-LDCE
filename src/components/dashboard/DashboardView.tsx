@@ -144,7 +144,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 2. Upcoming Trip & Budget Highlights Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Left Column (8 cols): Hero Upcoming Trip */}
-        <div className="lg:col-span-7 xl:col-span-8 space-y-3">
+        <div className="lg:col-span-7 xl:col-span-8 space-y-3 min-w-0">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xl font-bold font-display tracking-tight text-slate-900">
               Next Upcoming Journey
@@ -165,7 +165,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Right Column (5 cols): Compact Budget Overview */}
-        <div className="lg:col-span-5 xl:col-span-4 space-y-3">
+        <div className="lg:col-span-5 xl:col-span-4 space-y-3 min-w-0">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xl font-bold font-display tracking-tight text-slate-900">
               Trip Budget
