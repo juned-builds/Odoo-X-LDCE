@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   ChevronLeft,
   Compass,
@@ -9,51 +9,30 @@ import {
   CheckCircle,
   Clock,
   MapPin,
-  Edit3,
 } from 'lucide-react';
 import { TripForm } from './TripForm';
 import { TripPreviewCard, DEFAULT_TRIP_COVER } from './TripPreviewCard';
 import { Trip, TripFormData } from '../../types/dashboard';
-import { calculateTripDuration, deriveTripStatus } from '../../utils/dateUtils';
+import { calculateTripDuration } from '../../utils/dateUtils';
 import { Button } from '../ui/Button';
 
 interface CreateTripViewProps {
   onBackToDashboard: () => void;
   onTripCreated: (newTrip: Trip, actionType: 'save' | 'continue') => void;
-  onTripUpdated?: (updatedTrip: Trip) => void;
-  editingTrip?: Trip | null;
-  fromSection?: 'dashboard' | 'my-trips';
 }
 
 export const CreateTripView: React.FC<CreateTripViewProps> = ({
   onBackToDashboard,
   onTripCreated,
-  onTripUpdated,
-  editingTrip,
-  fromSection = 'dashboard',
 }) => {
-  const isEditMode = !!editingTrip;
-
-  // Form State initialized with editingTrip if available
+  // Form State
   const [formData, setFormData] = useState<TripFormData>({
-    name: editingTrip ? editingTrip.name : '',
-    startDate: editingTrip ? editingTrip.startDate : '',
-    endDate: editingTrip ? editingTrip.endDate : '',
-    description: editingTrip?.description || '',
-    coverImage: editingTrip?.coverImage || '',
+    name: '',
+    startDate: '',
+    endDate: '',
+    description: '',
+    coverImage: '',
   });
-
-  useEffect(() => {
-    if (editingTrip) {
-      setFormData({
-        name: editingTrip.name,
-        startDate: editingTrip.startDate,
-        endDate: editingTrip.endDate,
-        description: editingTrip.description || '',
-        coverImage: editingTrip.coverImage || '',
-      });
-    }
-  }, [editingTrip]);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof TripFormData | 'dateRange', string>>
@@ -61,20 +40,15 @@ export const CreateTripView: React.FC<CreateTripViewProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [savedTripPreview, setSavedTripPreview] = useState<Trip | null>(null);
+  const [createdTripPreview, setCreatedTripPreview] = useState<Trip | null>(null);
 
-  // Check if user has entered or modified information
-  const isDirty = isEditMode
-    ? formData.name !== editingTrip.name ||
-      formData.startDate !== editingTrip.startDate ||
-      formData.endDate !== editingTrip.endDate ||
-      formData.description !== (editingTrip.description || '') ||
-      formData.coverImage !== (editingTrip.coverImage || '')
-    : formData.name.trim() !== '' ||
-      formData.startDate !== '' ||
-      formData.endDate !== '' ||
-      formData.description.trim() !== '' ||
-      formData.coverImage !== '';
+  // Check if user has entered any information (to guard against accidental leave)
+  const isDirty =
+    formData.name.trim() !== '' ||
+    formData.startDate !== '' ||
+    formData.endDate !== '' ||
+    formData.description.trim() !== '' ||
+    formData.coverImage !== '';
 
   const handleFieldChange = (field: keyof TripFormData, value: string) => {
     setFormData((prev) => ({
@@ -130,61 +104,34 @@ export const CreateTripView: React.FC<CreateTripViewProps> = ({
     // Simulate short network save delay for realistic UX
     setTimeout(() => {
       const durationInfo = calculateTripDuration(formData.startDate, formData.endDate);
-      const calculatedStatus = deriveTripStatus(
-        formData.startDate,
-        formData.endDate,
-        editingTrip?.status || 'planning'
-      );
 
-      if (isEditMode && editingTrip) {
-        const updated: Trip = {
-          ...editingTrip,
-          name: formData.name.trim(),
-          route: editingTrip.route || formData.name.trim(),
-          startDate: formData.startDate,
-          endDate: formData.endDate,
-          duration: durationInfo.formattedDuration || editingTrip.duration,
-          status: calculatedStatus,
-          coverImage: formData.coverImage || editingTrip.coverImage || DEFAULT_TRIP_COVER,
-          description: formData.description.trim(),
-        };
+      const newTrip: Trip = {
+        id: `trip_${Date.now()}`,
+        name: formData.name.trim(),
+        route: formData.name.trim(),
+        destinationCount: 1,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        duration: durationInfo.formattedDuration || 'Flexible duration',
+        status: 'planning',
+        coverImage: formData.coverImage || DEFAULT_TRIP_COVER,
+        progressPercentage: 15,
+        budgetTotal: 65000,
+        budgetSpent: 0,
+        currency: '₹',
+        description: formData.description.trim(),
+        notesCount: formData.description.trim() ? 1 : 0,
+        destinations: [formData.name.trim()],
+        createdAt: new Date().toISOString(),
+      };
 
-        setIsSaving(false);
-        setSavedTripPreview(updated);
-        setShowSuccessModal(true);
+      setIsSaving(false);
+      setCreatedTripPreview(newTrip);
+      setShowSuccessModal(true);
 
-        if (onTripUpdated) {
-          onTripUpdated(updated);
-        }
-      } else {
-        const newTrip: Trip = {
-          id: `trip_${Date.now()}`,
-          name: formData.name.trim(),
-          route: formData.name.trim(),
-          destinationCount: 1,
-          startDate: formData.startDate,
-          endDate: formData.endDate,
-          duration: durationInfo.formattedDuration || 'Flexible duration',
-          status: calculatedStatus,
-          coverImage: formData.coverImage || DEFAULT_TRIP_COVER,
-          progressPercentage: 15,
-          budgetTotal: 65000,
-          budgetSpent: 0,
-          currency: '₹',
-          description: formData.description.trim(),
-          notesCount: formData.description.trim() ? 1 : 0,
-          destinations: [formData.name.trim()],
-          createdAt: new Date().toISOString(),
-        };
-
-        setIsSaving(false);
-        setSavedTripPreview(newTrip);
-        setShowSuccessModal(true);
-
-        // Trigger the parent state update
-        onTripCreated(newTrip, actionType);
-      }
-    }, 600);
+      // Trigger the parent state update
+      onTripCreated(newTrip, actionType);
+    }, 700);
   };
 
   return (
@@ -199,45 +146,32 @@ export const CreateTripView: React.FC<CreateTripViewProps> = ({
               onClick={handleBack}
               className="hover:text-teal-600 transition-colors cursor-pointer"
             >
-              {fromSection === 'my-trips' ? 'My Trips' : 'Dashboard'}
+              Dashboard
             </button>
             <span className="text-slate-300">/</span>
-            <span className="text-teal-700 font-bold">
-              {isEditMode ? 'Edit Trip' : 'Create Trip'}
-            </span>
+            <span className="text-teal-700 font-bold">Create Trip</span>
           </nav>
 
           {/* Title and Subtitle */}
           <div>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              {isEditMode ? (
-                <>
-                  <span>Edit Trip</span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 font-sans font-semibold">
-                    Editing Mode
-                  </span>
-                </>
-              ) : (
-                'Plan a New Trip'
-              )}
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 tracking-tight">
+              Plan a New Trip
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              {isEditMode
-                ? 'Update itinerary schedule, name, cover photo, or journey notes.'
-                : 'Create the foundation for your next adventure.'}
+              Create the foundation for your next adventure.
             </p>
           </div>
         </div>
 
-        {/* Back Action Button */}
+        {/* Back to Dashboard Action Button */}
         <div>
           <button
             type="button"
             onClick={handleBack}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 text-xs font-semibold shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 text-xs font-semibold shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98]"
           >
             <ChevronLeft className="w-4 h-4 text-slate-500" />
-            <span>{fromSection === 'my-trips' ? 'Back to My Trips' : 'Back to Dashboard'}</span>
+            <span>Back to Dashboard</span>
           </button>
         </div>
       </div>
@@ -283,12 +217,10 @@ export const CreateTripView: React.FC<CreateTripViewProps> = ({
 
             <div className="space-y-1">
               <h3 className="text-lg font-bold font-display text-slate-900">
-                {isEditMode ? 'Discard unsaved changes?' : 'Discard unsaved trip?'}
+                Discard unsaved trip?
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                {isEditMode
-                  ? 'You have unsaved edits to this trip. Navigating away now will revert changes to their previous state.'
-                  : 'You have started customizing this trip. If you navigate back now, your entered details will not be saved.'}
+                You have started customizing this trip. If you navigate back to the dashboard now, your entered details will not be saved.
               </p>
             </div>
 
@@ -317,7 +249,7 @@ export const CreateTripView: React.FC<CreateTripViewProps> = ({
       )}
 
       {/* 4. Success Confirmation Modal / Banner */}
-      {showSuccessModal && savedTripPreview && (
+      {showSuccessModal && createdTripPreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity" />
           <div className="relative w-full max-w-md rounded-3xl bg-white p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5 animate-scaleUp z-10 text-center">
@@ -327,15 +259,13 @@ export const CreateTripView: React.FC<CreateTripViewProps> = ({
 
             <div className="space-y-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                {isEditMode ? 'Trip Updated Successfully' : 'Trip Created Successfully'}
+                Trip Created Successfully
               </span>
               <h3 className="text-xl font-bold font-display text-slate-900">
-                {savedTripPreview.name}
+                {createdTripPreview.name}
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed max-w-xs mx-auto">
-                {isEditMode
-                  ? 'Your trip changes have been saved to your collection.'
-                  : 'Your new journey has been saved to your local trip collection.'}
+                Your new journey has been saved to your local trip collection.
               </p>
             </div>
 
@@ -343,12 +273,12 @@ export const CreateTripView: React.FC<CreateTripViewProps> = ({
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-around text-xs text-slate-700">
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-teal-600" />
-                <span className="font-semibold">{savedTripPreview.duration}</span>
+                <span className="font-semibold">{createdTripPreview.duration}</span>
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
                 <Compass className="w-3.5 h-3.5 text-teal-600" />
-                <span className="font-semibold capitalize">{savedTripPreview.status}</span>
+                <span className="font-semibold capitalize">{createdTripPreview.status}</span>
               </div>
             </div>
 
@@ -361,7 +291,7 @@ export const CreateTripView: React.FC<CreateTripViewProps> = ({
                   onBackToDashboard();
                 }}
               >
-                {fromSection === 'my-trips' ? 'Back to My Trips' : 'View on Dashboard'}
+                View on Dashboard
               </Button>
             </div>
           </div>

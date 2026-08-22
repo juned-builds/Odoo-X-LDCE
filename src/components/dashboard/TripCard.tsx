@@ -1,14 +1,11 @@
 import React from 'react';
-import { Calendar, MapPin, ArrowRight, Luggage } from 'lucide-react';
+import { Calendar, MapPin, ArrowRight, MoreHorizontal, Luggage, Clock } from 'lucide-react';
 import { Trip } from '../../types/dashboard';
-import { formatTripDateRange } from '../../utils/dateUtils';
-import { DEFAULT_TRIP_COVER } from '../trip/TripPreviewCard';
 
 interface TripCardProps {
   trip: Trip;
   onView: (trip: Trip) => void;
   onEdit: (trip: Trip) => void;
-  onDelete?: (trip: Trip) => void;
 }
 
 export const TripCard: React.FC<TripCardProps> = ({ trip, onView, onEdit }) => {
@@ -38,29 +35,27 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onView, onEdit }) => {
   };
 
   const statusInfo = getStatusBadge(trip.status);
-  const coverImage = trip.coverImage || DEFAULT_TRIP_COVER;
-  const dateRangeDisplay = formatTripDateRange(trip.startDate, trip.endDate);
 
   return (
     <div className="group rounded-2xl bg-white border border-slate-200/90 hover:border-teal-300 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden">
       {/* Visual Cover */}
-      <div className="relative h-44 w-full overflow-hidden bg-slate-900">
+      <div className="relative h-44 w-full overflow-hidden bg-slate-100">
         <img
-          src={coverImage}
+          src={trip.coverImage}
           alt={trip.name}
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-black/10" />
 
-        {/* Top Status & Duration */}
+        {/* Top Status & Date */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
           <span
             className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md ${statusInfo.style}`}
           >
             {statusInfo.label}
           </span>
-          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-black/50 text-white backdrop-blur-md border border-white/10">
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-black/40 text-white backdrop-blur-md">
             {trip.duration}
           </span>
         </div>
@@ -68,7 +63,7 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onView, onEdit }) => {
         {/* Bottom Destination Count Overlay */}
         <div className="absolute bottom-3 left-3 text-white text-xs font-semibold drop-shadow flex items-center gap-1.5">
           <Luggage className="w-3.5 h-3.5 text-teal-300" />
-          <span>{trip.destinationCount} {trip.destinationCount === 1 ? 'Destination' : 'Destinations'}</span>
+          <span>{trip.destinationCount} Destinations</span>
         </div>
       </div>
 
@@ -81,19 +76,13 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onView, onEdit }) => {
 
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
             <MapPin className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-            <span className="truncate">{trip.route || trip.name}</span>
+            <span className="truncate">{trip.route}</span>
           </div>
 
           <div className="flex items-center gap-1.5 text-xs text-slate-400">
             <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span>{dateRangeDisplay}</span>
+            <span>{trip.startDate} — {trip.endDate}</span>
           </div>
-
-          {trip.description && (
-            <p className="text-xs text-slate-500 line-clamp-2 pt-1">
-              {trip.description}
-            </p>
-          )}
         </div>
 
         {/* Action Button Row */}
@@ -101,7 +90,7 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onView, onEdit }) => {
           <button
             type="button"
             onClick={() => onEdit(trip)}
-            className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+            className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-2 py-1 rounded-lg hover:bg-slate-50 transition-colors"
           >
             Edit Trip
           </button>
@@ -109,7 +98,7 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onView, onEdit }) => {
           <button
             type="button"
             onClick={() => onView(trip)}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 transition-colors"
           >
             <span>View</span>
             <ArrowRight className="w-3 h-3" />

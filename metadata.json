@@ -1,6 +1,10 @@
 {
   "name": "GlobeTrotter",
+<<<<<<< Updated upstream
   "description": "GlobeTrotter Personalized Travel Planning - Authentication, Interactive Dashboard, Create Trip Planner & My Trips Management",
+=======
+  "description": "GlobeTrotter Personalized Travel Planning - Authentication, Interactive Dashboard & Create Trip Planner",
+>>>>>>> Stashed changes
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
