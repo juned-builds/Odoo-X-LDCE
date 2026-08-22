@@ -1,5 +1,81 @@
-import { Trip, TripActivityAssignment } from '../types/dashboard';
+import { Trip, TripActivityAssignment, TripStop } from '../types/dashboard';
 import { ItineraryActivity, ItineraryDay } from '../types/itinerary';
+import { ALL_DESTINATIONS } from '../data/destinationsData';
+
+/**
+ * Looks up country for a destination city from trip stops or global destination registry
+ */
+export function getDestinationCountry(cityName: string, stops?: TripStop[]): string {
+  if (!cityName) return '';
+  
+  // First check trip stops
+  if (stops && stops.length > 0) {
+    const stop = stops.find((s) => s.city.toLowerCase() === cityName.toLowerCase());
+    if (stop?.country) return stop.country;
+  }
+
+  // Then check ALL_DESTINATIONS
+  const found = ALL_DESTINATIONS.find(
+    (d) => d.city.toLowerCase() === cityName.toLowerCase()
+  );
+  if (found?.country) return found.country;
+
+  // Common fallbacks
+  const commonMap: Record<string, string> = {
+    paris: 'France',
+    amsterdam: 'Netherlands',
+    rome: 'Italy',
+    tokyo: 'Japan',
+    bali: 'Indonesia',
+    london: 'United Kingdom',
+    barcelona: 'Spain',
+    dubai: 'United Arab Emirates',
+    kyoto: 'Japan',
+    florence: 'Italy',
+    venice: 'Italy',
+    newyork: 'United States',
+    'new york': 'United States',
+    singapore: 'Singapore',
+    bangkok: 'Thailand',
+    sydney: 'Australia',
+  };
+
+  return commonMap[cityName.toLowerCase()] || '';
+}
+
+/**
+ * Formats a time string into 24-hour display (e.g. "09:30 AM" -> "09:30", "06:30 PM" -> "18:30")
+ */
+export function format24hTime(timeStr?: string): string {
+  if (!timeStr) return '09:00';
+  const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return timeStr;
+
+  let hours = parseInt(match[1], 10);
+  const minutes = match[2];
+  const period = match[3].toUpperCase();
+
+  if (period === 'PM' && hours < 12) {
+    hours += 12;
+  } else if (period === 'AM' && hours === 12) {
+    hours = 0;
+  }
+
+  return `${hours.toString().padStart(2, '0')}:${minutes}`;
+}
+
+/**
+ * Formats date string into full month and day (e.g. "2026-09-10" -> "September 10")
+ */
+export function formatLongDate(dateStr: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  return date.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+  });
+}
 
 /**
  * Standard preset start times for activity scheduling

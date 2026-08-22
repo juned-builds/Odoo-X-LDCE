@@ -36,6 +36,7 @@ interface ItineraryBuilderViewProps {
   onBack: () => void;
   onSaveTrip: (updatedTrip: Trip) => void;
   onNavigateToExplore?: () => void;
+  onViewItinerary?: () => void;
 }
 
 export const ItineraryBuilderView: React.FC<ItineraryBuilderViewProps> = ({
@@ -43,6 +44,7 @@ export const ItineraryBuilderView: React.FC<ItineraryBuilderViewProps> = ({
   onBack,
   onSaveTrip,
   onNavigateToExplore,
+  onViewItinerary,
 }) => {
   // Working activities state for this trip
   const [workingActivities, setWorkingActivities] = useState<TripActivityAssignment[]>(() => {
@@ -383,8 +385,24 @@ export const ItineraryBuilderView: React.FC<ItineraryBuilderViewProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons: Cancel, Save */}
+          {/* Action Buttons: Cancel, View Itinerary, Save */}
           <div className="flex items-center gap-2.5 shrink-0 self-end md:self-center">
+            {onViewItinerary && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (isDirty) {
+                    // Auto-sync working activities before switching
+                    onSaveTrip(workingTrip);
+                  }
+                  onViewItinerary();
+                }}
+                leftIcon={<Layers className="w-4 h-4 text-teal-600" />}
+              >
+                View Itinerary
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"

@@ -8,6 +8,7 @@ import { ExploreView } from '../explore/ExploreView';
 import { ActivitiesView } from '../activities/ActivitiesView';
 import { ViewTripModal } from '../trips/ViewTripModal';
 import { ItineraryBuilderView } from '../itinerary/ItineraryBuilderView';
+import { ItineraryViewScreen } from '../itinerary/ItineraryViewScreen';
 import { PlaceholderModal } from '../common/PlaceholderModal';
 import { NavSection, Trip, Destination, TripActivityAssignment } from '../../types/dashboard';
 import { Activity } from '../../types/activity';
@@ -48,7 +49,7 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     if (section !== 'create-trip') {
       setEditingTrip(null);
     }
-    if (section !== 'itinerary') {
+    if (section !== 'itinerary' && section !== 'itinerary-builder' && section !== 'calendar') {
       setItineraryTrip(null);
     }
 
@@ -58,10 +59,11 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
       section !== 'my-trips' &&
       section !== 'explore' &&
       section !== 'activities' &&
-      section !== 'itinerary'
+      section !== 'itinerary' &&
+      section !== 'itinerary-builder' &&
+      section !== 'calendar'
     ) {
       const sectionLabels: Record<string, string> = {
-        calendar: 'Travel Calendar & Scheduling',
         budget: 'Budget & Expense Management',
         settings: 'Preferences & Account Settings',
       };
@@ -75,10 +77,23 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     }
   };
 
-  const handleOpenItinerary = (trip: Trip) => {
+  const handleOpenItinerary = (
+    trip: Trip,
+    mode: 'view' | 'edit' | 'calendar' = 'view'
+  ) => {
     setItineraryTrip(trip);
-    setPreviousSection(activeSection === 'itinerary' ? 'my-trips' : activeSection);
-    setActiveSection('itinerary');
+    setPreviousSection(
+      activeSection === 'itinerary' || activeSection === 'itinerary-builder'
+        ? 'my-trips'
+        : activeSection
+    );
+    if (mode === 'edit') {
+      setActiveSection('itinerary-builder');
+    } else if (mode === 'calendar') {
+      setActiveSection('calendar');
+    } else {
+      setActiveSection('itinerary');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -393,17 +408,52 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
               onCreateNewTrip={handlePlanTrip}
             />
           ) : activeSection === 'itinerary' && (itineraryTrip || trips[0]) ? (
-            <ItineraryBuilderView
+            <ItineraryViewScreen
               trip={itineraryTrip || trips[0]}
               onBack={() => {
                 setActiveSection(previousSection === 'itinerary' ? 'my-trips' : previousSection);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
+              onEditItinerary={() => {
+                setPreviousSection('itinerary');
+                setActiveSection('itinerary-builder');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               onSaveTrip={handleSaveItinerary}
+              initialViewMode="list"
+            />
+          ) : activeSection === 'itinerary-builder' && (itineraryTrip || trips[0]) ? (
+            <ItineraryBuilderView
+              trip={itineraryTrip || trips[0]}
+              onBack={() => {
+                setActiveSection(previousSection === 'itinerary-builder' ? 'my-trips' : previousSection);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onSaveTrip={handleSaveItinerary}
+              onViewItinerary={() => {
+                setPreviousSection('itinerary-builder');
+                setActiveSection('itinerary');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               onNavigateToExplore={() => {
                 setActiveSection('explore');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
+            />
+          ) : activeSection === 'calendar' && (itineraryTrip || trips[0]) ? (
+            <ItineraryViewScreen
+              trip={itineraryTrip || trips[0]}
+              onBack={() => {
+                setActiveSection('dashboard');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onEditItinerary={() => {
+                setPreviousSection('calendar');
+                setActiveSection('itinerary-builder');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onSaveTrip={handleSaveItinerary}
+              initialViewMode="calendar"
             />
           ) : activeSection === 'create-trip' ? (
             <CreateTripView
@@ -470,4 +520,3 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     </div>
   );
 };
-

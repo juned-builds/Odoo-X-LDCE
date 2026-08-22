@@ -5,6 +5,7 @@ export type NavSection =
   | 'explore'
   | 'activities'
   | 'itinerary'
+  | 'itinerary-builder'
   | 'calendar'
   | 'budget'
   | 'settings';

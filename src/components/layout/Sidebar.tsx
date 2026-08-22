@@ -122,7 +122,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             Menu
           </p>
           {navItems.map((item) => {
-            const isActive = activeSection === item.id;
+            const isActive =
+              activeSection === item.id ||
+              (item.id === 'my-trips' &&
+                (activeSection === 'itinerary' || activeSection === 'itinerary-builder'));
             return (
               <button
                 key={item.id}
@@ -165,8 +168,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-xs text-slate-600">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold text-slate-700 truncate">Module 6 Active</p>
-            <p className="text-[10px] text-slate-400 truncate">Activity Discovery</p>
+            <p className="text-[11px] font-semibold text-slate-700 truncate">Module 8 Active</p>
+            <p className="text-[10px] text-slate-400 truncate">Itinerary & Timeline</p>
           </div>
         </div>
 
