@@ -1,4 +1,4 @@
-export type AuthView = 'login' | 'signup' | 'forgot-password';
+export type AuthView = 'login' | 'signup' | 'forgot-password' | 'dashboard';
 
 export interface LoginFormData {
   email: string;
