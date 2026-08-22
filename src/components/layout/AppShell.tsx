@@ -3,8 +3,11 @@ import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { DashboardView } from '../dashboard/DashboardView';
 import { CreateTripView } from '../trip/CreateTripView';
+<<<<<<< Updated upstream
 import { MyTripsView } from '../trips/MyTripsView';
 import { ViewTripModal } from '../trips/ViewTripModal';
+=======
+>>>>>>> Stashed changes
 import { PlaceholderModal } from '../common/PlaceholderModal';
 import { NavSection, Trip } from '../../types/dashboard';
 import { AuthenticatedUser } from '../../types/auth';
@@ -18,13 +21,12 @@ interface AppShellProps {
 export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
   const [activeSection, setActiveSection] = useState<NavSection>('dashboard');
   const [trips, setTrips] = useState<Trip[]>(MOCK_RECENT_TRIPS);
-  const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
-  const [viewingTrip, setViewingTrip] = useState<Trip | null>(null);
-  const [previousSection, setPreviousSection] = useState<NavSection>('dashboard');
   const [newlyCreatedTrip, setNewlyCreatedTrip] = useState<Trip | null>(null);
-  const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
   const [placeholderInfo, setPlaceholderInfo] = useState<{
     isOpen: boolean;
     title: string;
@@ -39,6 +41,7 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
 
   const handleSelectSection = (section: NavSection) => {
     setActiveSection(section);
+<<<<<<< Updated upstream
     if (section !== 'create-trip') {
       setEditingTrip(null);
     }
@@ -49,6 +52,11 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
       section !== 'my-trips'
     ) {
       const sectionLabels: Record<string, string> = {
+=======
+    if (section !== 'dashboard' && section !== 'create-trip') {
+      const sectionLabels: Record<string, string> = {
+        'my-trips': 'My Trips Library',
+>>>>>>> Stashed changes
         explore: 'Explore Destinations',
         calendar: 'Travel Calendar & Scheduling',
         budget: 'Budget & Expense Management',
@@ -58,52 +66,36 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
       setPlaceholderInfo({
         isOpen: true,
         title: sectionLabels[section] || 'Upcoming Screen',
+<<<<<<< Updated upstream
         description: `The ${sectionLabels[section]} screen is planned for later development modules. You can manage your full trip collection in My Trips and Create Trip.`,
+=======
+        description: `The ${sectionLabels[section]} screen is planned for later development modules. You can manage your trips from the Dashboard and Create Trip screens.`,
+>>>>>>> Stashed changes
         moduleName: `Module: ${sectionLabels[section]}`,
       });
     }
   };
 
   const handlePlanTrip = () => {
-    setEditingTrip(null);
-    setPreviousSection(activeSection === 'create-trip' ? 'dashboard' : activeSection);
     setActiveSection('create-trip');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleEditTrip = (trip: Trip) => {
-    setEditingTrip(trip);
-    setPreviousSection(activeSection === 'create-trip' ? 'my-trips' : activeSection);
-    setActiveSection('create-trip');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleViewTrip = (trip: Trip) => {
-    setViewingTrip(trip);
-  };
-
-  const handleDeleteTrip = (tripId: string) => {
-    const deletedTrip = trips.find((t) => t.id === tripId);
-    setTrips((prevTrips) => prevTrips.filter((t) => t.id !== tripId));
-    setNotificationMessage(
-      `"${deletedTrip?.name || 'Trip'}" was removed from your collection.`
-    );
   };
 
   const handleTripCreated = (newTrip: Trip, actionType: 'save' | 'continue') => {
     // Add new trip to the trips collection
     setTrips((prevTrips) => [newTrip, ...prevTrips]);
     setNewlyCreatedTrip(newTrip);
-    setEditingTrip(null);
 
     if (actionType === 'continue') {
-      setActiveSection('my-trips');
+      // If continue was pressed, we can show a placeholder or return to dashboard
+      setActiveSection('dashboard');
     } else {
       setActiveSection('dashboard');
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+<<<<<<< Updated upstream
   const handleTripUpdated = (updatedTrip: Trip) => {
     // Update existing trip in collection
     setTrips((prevTrips) =>
@@ -123,6 +115,8 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+=======
+>>>>>>> Stashed changes
   return (
     <div className="min-h-screen bg-slate-50 flex flex-row">
       {/* 1. Sidebar Navigation */}
@@ -134,7 +128,6 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
         onLogout={onLogout}
         isOpenMobile={isMobileMenuOpen}
         onCloseMobile={() => setIsMobileMenuOpen(false)}
-        tripsCount={trips.length}
       />
 
       {/* 2. Main Content Area */}
@@ -156,6 +149,7 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
               trips={trips}
               newlyCreatedTrip={newlyCreatedTrip}
               onDismissSuccessBanner={() => setNewlyCreatedTrip(null)}
+<<<<<<< Updated upstream
               onViewAllTrips={() => {
                 setActiveSection('my-trips');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -172,14 +166,19 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
               onDeleteTrip={handleDeleteTrip}
               notificationMessage={notificationMessage}
               onDismissNotification={() => setNotificationMessage(null)}
+=======
+>>>>>>> Stashed changes
             />
           ) : activeSection === 'create-trip' ? (
             <CreateTripView
-              onBackToDashboard={handleBackFromCreate}
+              onBackToDashboard={() => setActiveSection('dashboard')}
               onTripCreated={handleTripCreated}
+<<<<<<< Updated upstream
               onTripUpdated={handleTripUpdated}
               editingTrip={editingTrip}
               fromSection={previousSection === 'my-trips' ? 'my-trips' : 'dashboard'}
+=======
+>>>>>>> Stashed changes
             />
           ) : (
             <div className="py-12 text-center space-y-4">
@@ -194,7 +193,7 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
                 <button
                   type="button"
                   onClick={() => setActiveSection('dashboard')}
-                  className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
                 >
                   Return to Dashboard
                 </button>
@@ -204,6 +203,7 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
         </main>
       </div>
 
+<<<<<<< Updated upstream
       {/* View Trip Modal */}
       <ViewTripModal
         isOpen={!!viewingTrip}
@@ -216,6 +216,9 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
       />
 
       {/* Secondary Nav Item Feedback Modal for Explore, Calendar, Budget, Settings */}
+=======
+      {/* Secondary Nav Item Feedback Modal */}
+>>>>>>> Stashed changes
       <PlaceholderModal
         isOpen={placeholderInfo.isOpen}
         onClose={() => setPlaceholderInfo({ ...placeholderInfo, isOpen: false })}

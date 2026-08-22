@@ -6,8 +6,8 @@ export const MOCK_UPCOMING_TRIP: Trip = {
   route: 'Paris → Amsterdam → Rome',
   destinations: ['Paris', 'Amsterdam', 'Rome'],
   destinationCount: 3,
-  startDate: '2026-09-10',
-  endDate: '2026-09-20',
+  startDate: '10 Jun',
+  endDate: '20 Jun',
   duration: '10 days',
   status: 'upcoming',
   coverImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80',
@@ -15,9 +15,11 @@ export const MOCK_UPCOMING_TRIP: Trip = {
   budgetTotal: 80000,
   budgetSpent: 68500,
   currency: '₹',
-  description: 'Classic western European rail adventure exploring historic architecture, world-class art galleries, canal cruises, and authentic culinary highlights across France, the Netherlands, and Italy.',
   notesCount: 14,
+<<<<<<< Updated upstream
   createdAt: '2026-05-10T10:00:00.000Z',
+=======
+>>>>>>> Stashed changes
 };
 
 export const MOCK_RECENT_TRIPS: Trip[] = [
@@ -27,17 +29,20 @@ export const MOCK_RECENT_TRIPS: Trip[] = [
     route: 'Paris → Amsterdam → Rome',
     destinations: ['Paris', 'Amsterdam', 'Rome'],
     destinationCount: 3,
-    startDate: '2026-09-10',
-    endDate: '2026-09-20',
+    startDate: '10 Jun',
+    endDate: '20 Jun',
     duration: '10 days',
     status: 'upcoming',
-    coverImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80',
     progressPercentage: 85,
     budgetTotal: 80000,
     budgetSpent: 68500,
     currency: '₹',
+<<<<<<< Updated upstream
     description: 'Classic western European rail adventure exploring historic architecture, world-class art galleries, and authentic culinary highlights.',
     createdAt: '2026-05-10T10:00:00.000Z',
+=======
+>>>>>>> Stashed changes
   },
   {
     id: 'trip-2',
@@ -45,8 +50,8 @@ export const MOCK_RECENT_TRIPS: Trip[] = [
     route: 'Tokyo → Kyoto → Osaka',
     destinations: ['Tokyo', 'Kyoto', 'Osaka'],
     destinationCount: 3,
-    startDate: '2026-03-15',
-    endDate: '2026-03-25',
+    startDate: '15 Mar',
+    endDate: '25 Mar',
     duration: '10 days',
     status: 'completed',
     coverImage: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=80',
@@ -54,8 +59,11 @@ export const MOCK_RECENT_TRIPS: Trip[] = [
     budgetTotal: 120000,
     budgetSpent: 118400,
     currency: '₹',
+<<<<<<< Updated upstream
     description: 'Immersive cherry blossom journey through neon-lit Shinjuku, serene Kyoto zen temples, and bustling Dotonbori street food markets.',
     createdAt: '2026-01-20T10:00:00.000Z',
+=======
+>>>>>>> Stashed changes
   },
   {
     id: 'trip-3',
@@ -63,8 +71,8 @@ export const MOCK_RECENT_TRIPS: Trip[] = [
     route: 'Dubai & Abu Dhabi',
     destinations: ['Dubai', 'Abu Dhabi'],
     destinationCount: 2,
-    startDate: '2026-05-02',
-    endDate: '2026-05-05',
+    startDate: '02 May',
+    endDate: '05 May',
     duration: '4 days',
     status: 'completed',
     coverImage: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
@@ -72,8 +80,11 @@ export const MOCK_RECENT_TRIPS: Trip[] = [
     budgetTotal: 45000,
     budgetSpent: 42300,
     currency: '₹',
+<<<<<<< Updated upstream
     description: 'Modern luxury escape featuring desert safaris, the Sheikh Zayed Grand Mosque, and futuristic skyline architecture.',
     createdAt: '2026-04-12T10:00:00.000Z',
+=======
+>>>>>>> Stashed changes
   },
   {
     id: 'trip-4',
@@ -81,8 +92,8 @@ export const MOCK_RECENT_TRIPS: Trip[] = [
     route: 'Zurich → Interlaken → Zermatt',
     destinations: ['Zurich', 'Interlaken', 'Zermatt'],
     destinationCount: 3,
-    startDate: '2026-10-12',
-    endDate: '2026-10-18',
+    startDate: '12 Aug',
+    endDate: '18 Aug',
     duration: '7 days',
     status: 'planning',
     coverImage: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=800&q=80',
@@ -90,8 +101,11 @@ export const MOCK_RECENT_TRIPS: Trip[] = [
     budgetTotal: 95000,
     budgetSpent: 35000,
     currency: '₹',
+<<<<<<< Updated upstream
     description: 'Scenic cogwheel railway excursions, hiking trails under the iconic Matterhorn, and crystal-clear mountain lake cruises.',
     createdAt: '2026-06-01T10:00:00.000Z',
+=======
+>>>>>>> Stashed changes
   },
 ];
 

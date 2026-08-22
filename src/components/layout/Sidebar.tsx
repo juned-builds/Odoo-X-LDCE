@@ -9,6 +9,7 @@ import {
   Plus,
   LogOut,
   X,
+  Sparkles,
 } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { NavSection } from '../../types/dashboard';
@@ -22,7 +23,6 @@ interface SidebarProps {
   onLogout: () => void;
   isOpenMobile: boolean;
   onCloseMobile: () => void;
-  tripsCount?: number;
 }
 
 interface NavItem {
@@ -40,7 +40,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onLogout,
   isOpenMobile,
   onCloseMobile,
-  tripsCount = 4,
 }) => {
   const navItems: NavItem[] = [
     {
@@ -52,7 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: 'my-trips',
       label: 'My Trips',
       icon: <Luggage className="w-4 h-4" />,
-      badge: `${tripsCount}`,
+      badge: '3',
     },
     {
       id: 'explore',
@@ -91,7 +90,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             type="button"
             onClick={onCloseMobile}
-            className="lg:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+            className="lg:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
             aria-label="Close navigation"
           >
             <X className="w-5 h-5" />
@@ -103,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             type="button"
             onClick={onPlanTrip}
-            className="w-full h-11 px-4 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold text-sm shadow-md shadow-teal-700/20 hover:shadow-lg hover:shadow-teal-700/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full h-11 px-4 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold text-sm shadow-md shadow-teal-700/20 hover:shadow-lg hover:shadow-teal-700/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Plan New Trip</span>
@@ -123,7 +122,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 type="button"
                 onClick={() => handleNavClick(item.id)}
                 className={`
-                  w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 cursor-pointer
+                  w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
                   ${isActive
                     ? 'bg-teal-50 text-teal-900 font-semibold shadow-xs border border-teal-200/70'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -159,8 +158,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-xs text-slate-600">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           <div className="min-w-0 flex-1">
+<<<<<<< Updated upstream
             <p className="text-[11px] font-semibold text-slate-700 truncate">Module 4 Active</p>
             <p className="text-[10px] text-slate-400 truncate">My Trips Library</p>
+=======
+            <p className="text-[11px] font-semibold text-slate-700 truncate">Module 3 Active</p>
+            <p className="text-[10px] text-slate-400 truncate">Create Trip Planner</p>
+>>>>>>> Stashed changes
           </div>
         </div>
 
@@ -184,7 +188,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             type="button"
             onClick={onLogout}
             title="Sign out to Auth Screen"
-            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors shrink-0 cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors shrink-0"
             aria-label="Sign out"
           >
             <LogOut className="w-4 h-4" />

@@ -15,7 +15,6 @@ import {
   MOCK_BUDGET_HIGHLIGHT,
 } from '../../data/mockDashboardData';
 import { Trip } from '../../types/dashboard';
-import { formatTripDateRange } from '../../utils/dateUtils';
 
 interface DashboardViewProps {
   user: AuthenticatedUser | null;
@@ -23,9 +22,12 @@ interface DashboardViewProps {
   trips?: Trip[];
   newlyCreatedTrip?: Trip | null;
   onDismissSuccessBanner?: () => void;
+<<<<<<< Updated upstream
   onViewAllTrips?: () => void;
   onEditTrip?: (trip: Trip) => void;
   onViewTrip?: (trip: Trip) => void;
+=======
+>>>>>>> Stashed changes
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -34,9 +36,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   trips = MOCK_RECENT_TRIPS,
   newlyCreatedTrip,
   onDismissSuccessBanner,
+<<<<<<< Updated upstream
   onViewAllTrips,
   onEditTrip,
   onViewTrip,
+=======
+>>>>>>> Stashed changes
 }) => {
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -63,9 +68,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     });
   };
 
-  // Find next upcoming trip dynamically from trips collection if available
-  const upcomingTrip = trips.find((t) => t.status === 'upcoming') || trips[0] || MOCK_UPCOMING_TRIP;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -82,11 +84,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
-                <span>Trip Saved Successfully:</span>
+                <span>Trip Created Successfully:</span>
                 <span className="text-emerald-700 underline truncate">{newlyCreatedTrip.name}</span>
               </p>
               <p className="text-[11px] text-emerald-700">
-                {newlyCreatedTrip.duration} • {formatTripDateRange(newlyCreatedTrip.startDate, newlyCreatedTrip.endDate)}. Added to your active trip collection.
+                {newlyCreatedTrip.duration} • Scheduled from {newlyCreatedTrip.startDate} to {newlyCreatedTrip.endDate}. Added to your active trip collection.
               </p>
             </div>
           </div>
@@ -95,7 +97,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={onDismissSuccessBanner}
-              className="p-1.5 text-emerald-600 hover:text-emerald-900 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-emerald-600 hover:text-emerald-900 hover:bg-emerald-100 rounded-lg transition-colors"
               aria-label="Dismiss banner"
             >
               <X className="w-4 h-4" />
@@ -115,9 +117,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <h2 className="text-xl font-bold font-display tracking-tight text-slate-900">
               Next Upcoming Journey
             </h2>
-            <span className="text-xs text-slate-500 font-medium">Active Itinerary</span>
+            <span className="text-xs text-slate-500 font-medium">Starts in 14 days</span>
           </div>
           <UpcomingTripCard
+<<<<<<< Updated upstream
             trip={upcomingTrip}
             onViewItinerary={(trip) => {
               if (onViewTrip) {
@@ -130,6 +133,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 );
               }
             }}
+=======
+            trip={MOCK_UPCOMING_TRIP}
+            onViewItinerary={(trip) =>
+              handleOpenPlaceholder(
+                `Itinerary: ${trip.name}`,
+                `The full day-by-day interactive itinerary builder for ${trip.route} will be introduced in subsequent modules. You can review scheduled days, flights, and booked stays here.`,
+                'Module: Itinerary Builder'
+              )
+            }
+>>>>>>> Stashed changes
           />
         </div>
 
@@ -158,40 +171,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* 3. Recent Trips Section */}
       <RecentTripsSection
-        trips={trips.slice(0, 3)}
-        onViewTrip={(trip) => {
-          if (onViewTrip) {
-            onViewTrip(trip);
-          } else {
-            handleOpenPlaceholder(
-              `Trip Overview: ${trip.name}`,
-              `Viewing ${trip.name} (${trip.route || trip.name}) covering ${trip.destinationCount} destination(s) between ${formatTripDateRange(trip.startDate, trip.endDate)}.`,
-              'Module: Trip Explorer'
-            );
-          }
-        }}
-        onEditTrip={(trip) => {
-          if (onEditTrip) {
-            onEditTrip(trip);
-          } else {
-            handleOpenPlaceholder(
-              `Edit ${trip.name}`,
-              `Editing dates, waypoints, travelers, and transport details for ${trip.name} will be supported in the Trip Editor module.`,
-              'Module: Trip Editor'
-            );
-          }
-        }}
-        onViewAllTrips={() => {
-          if (onViewAllTrips) {
-            onViewAllTrips();
-          } else {
-            handleOpenPlaceholder(
-              'All Trips Archive',
-              'Browse and filter your complete archive of past, ongoing, and wishlisted journeys in the upcoming My Trips library.',
-              'Module: My Trips'
-            );
-          }
-        }}
+        trips={trips}
+        onViewTrip={(trip) =>
+          handleOpenPlaceholder(
+            `Trip Overview: ${trip.name}`,
+            `Viewing ${trip.name} (${trip.route}) covering ${trip.destinationCount} destination(s) between ${trip.startDate} and ${trip.endDate}. Detailed timeline will unlock in the Trip View module.`,
+            'Module: Trip Explorer'
+          )
+        }
+        onEditTrip={(trip) =>
+          handleOpenPlaceholder(
+            `Edit ${trip.name}`,
+            `Editing dates, waypoints, travelers, and transport details for ${trip.name} will be supported in the Trip Editor module.`,
+            'Module: Trip Editor'
+          )
+        }
+        onViewAllTrips={() =>
+          handleOpenPlaceholder(
+            'All Trips Archive',
+            'Browse and filter your complete archive of past, ongoing, and wishlisted journeys in the upcoming My Trips library.',
+            'Module: My Trips'
+          )
+        }
       />
 
       {/* 4. Recommended Destinations Section */}
