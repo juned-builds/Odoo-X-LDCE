@@ -1,4 +1,50 @@
-export type NavSection = 'dashboard' | 'create-trip' | 'my-trips' | 'explore' | 'calendar' | 'budget' | 'settings';
+export type NavSection =
+  | 'dashboard'
+  | 'create-trip'
+  | 'my-trips'
+  | 'explore'
+  | 'activities'
+  | 'itinerary'
+  | 'itinerary-builder'
+  | 'calendar'
+  | 'budget'
+  | 'settings';
+
+export interface TripActivityAssignment {
+  id: string;
+  activityId: string;
+  destinationCity: string;
+  destinationId?: string;
+  stopOrder?: number;
+  name: string;
+  type: string;
+  cost?: string;
+  costTier?: string;
+  costNumeric?: number;
+  duration?: string;
+  durationMinutes?: number;
+  image?: string;
+  date?: string; // 'YYYY-MM-DD'
+  time?: string; // e.g. "09:30 AM"
+  startTime?: string; // alias for time
+  dayNumber?: number; // e.g. 1 for Day 1
+  order?: number; // order index within the day
+  rating?: number;
+  description?: string;
+  isCustom?: boolean;
+  notes?: string;
+  addedAt?: string;
+}
+
+export interface TripStop {
+  destinationId?: string;
+  city: string;
+  country?: string;
+  startDate?: string;
+  endDate?: string;
+  order: number;
+  activities?: TripActivityAssignment[];
+}
 
 export interface Trip {
   id: string;
@@ -17,7 +63,26 @@ export interface Trip {
   description?: string;
   notesCount?: number;
   destinations: string[];
+  stops?: TripStop[];
+  activities?: TripActivityAssignment[];
   createdAt?: string;
+}
+
+export interface Destination {
+  id: string;
+  city: string;
+  country: string;
+  region: string;
+  description: string;
+  shortDescription?: string;
+  costIndex: '$' | '$$' | '$$$' | '$$$$';
+  popularity: number;
+  rating: number;
+  reviewCount?: number;
+  image: string;
+  bestSeason: string;
+  highlights: string[];
+  tags?: string[];
 }
 
 export interface TripFormData {

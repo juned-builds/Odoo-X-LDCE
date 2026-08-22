@@ -9,6 +9,8 @@ import {
   Sparkles,
   FileText,
   CheckCircle2,
+  Layers,
+  ArrowRight,
 } from 'lucide-react';
 import { Trip } from '../../types/dashboard';
 import { formatTripDateRange } from '../../utils/dateUtils';
@@ -20,6 +22,7 @@ interface ViewTripModalProps {
   trip: Trip | null;
   onClose: () => void;
   onEdit: (trip: Trip) => void;
+  onBuildItinerary?: (trip: Trip) => void;
 }
 
 export const ViewTripModal: React.FC<ViewTripModalProps> = ({
@@ -27,6 +30,7 @@ export const ViewTripModal: React.FC<ViewTripModalProps> = ({
   trip,
   onClose,
   onEdit,
+  onBuildItinerary,
 }) => {
   if (!isOpen || !trip) return null;
 
@@ -127,19 +131,70 @@ export const ViewTripModal: React.FC<ViewTripModalProps> = ({
             </div>
           )}
 
-          {/* Future Module Teaser */}
-          <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200/80 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center text-teal-700 shrink-0">
-              <Sparkles className="w-4 h-4" />
+          {/* Planned Activities Section */}
+          {trip.activities && trip.activities.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                  <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Planned Activities ({trip.activities.length})</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {trip.activities.map((act) => (
+                  <div
+                    key={act.id}
+                    className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-teal-300 transition-colors"
+                  >
+                    <img
+                      src={act.image}
+                      alt={act.name}
+                      className="w-12 h-12 rounded-xl object-cover shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-xs font-bold text-slate-900 truncate">
+                        {act.name}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 truncate">
+                        {act.destinationCity} • {act.type} • {act.duration}
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-teal-700 px-2 py-1 bg-teal-50 rounded-lg border border-teal-200 shrink-0">
+                      {act.cost}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="space-y-0.5">
-              <h4 className="text-xs font-bold text-teal-900">
-                Interactive Itinerary Builder
-              </h4>
-              <p className="text-[11px] text-teal-700 leading-relaxed">
-                Day-by-day activity timelines, map route optimization, hotel reservations, and packing checklists for this journey will be unlocked in upcoming modules.
+          )}
+
+          {/* Module 7 Itinerary Action Banner */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-900 to-slate-900 text-white flex items-center justify-between gap-4 shadow-sm">
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-teal-300">
+                <Layers className="w-4 h-4 text-teal-400" />
+                <span>Day-by-Day Itinerary</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed max-w-xs">
+                Organize scheduled activities, set arrival times, and build your custom timeline.
               </p>
             </div>
+
+            {onBuildItinerary && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onBuildItinerary(trip);
+                }}
+                className="px-3.5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer shrink-0"
+              >
+                <span>Build Itinerary</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -149,17 +204,33 @@ export const ViewTripModal: React.FC<ViewTripModalProps> = ({
             Close
           </Button>
 
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => {
-              onClose();
-              onEdit(trip);
-            }}
-            leftIcon={<Edit3 className="w-3.5 h-3.5" />}
-          >
-            Edit Trip
-          </Button>
+          <div className="flex items-center gap-2">
+            {onBuildItinerary && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  onClose();
+                  onBuildItinerary(trip);
+                }}
+                leftIcon={<Layers className="w-3.5 h-3.5" />}
+              >
+                Open Itinerary
+              </Button>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onClose();
+                onEdit(trip);
+              }}
+              leftIcon={<Edit3 className="w-3.5 h-3.5" />}
+            >
+              Edit Details
+            </Button>
+          </div>
         </div>
       </div>
     </div>

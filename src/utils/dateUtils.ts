@@ -47,7 +47,7 @@ export function calculateTripDuration(startDateStr: string, endDateStr: string):
   if (diffDays === 1) {
     return {
       days: 1,
-      formattedDuration: '1 day (Day Trip)',
+      formattedDuration: '1 day',
       isValid: true,
     };
   }
@@ -55,7 +55,7 @@ export function calculateTripDuration(startDateStr: string, endDateStr: string):
   if (diffDays === 2 || diffDays === 3) {
     return {
       days: diffDays,
-      formattedDuration: `${diffDays} days (Weekend Getaway)`,
+      formattedDuration: `${diffDays} days`,
       isValid: true,
     };
   }
@@ -88,4 +88,63 @@ export function formatTripShortDate(dateStr: string): string {
     day: 'numeric',
     month: 'short',
   });
+}
+
+export function formatTripDateRange(startDateStr: string, endDateStr: string): string {
+  if (!startDateStr && !endDateStr) return 'Flexible Dates';
+  if (!startDateStr) return `Until ${formatTripShortDate(endDateStr)}`;
+  if (!endDateStr) return `From ${formatTripShortDate(startDateStr)}`;
+
+  const start = new Date(startDateStr);
+  const end = new Date(endDateStr);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return `${startDateStr} — ${endDateStr}`;
+  }
+
+  const startFormatted = start.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+  });
+
+  const endFormatted = end.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+  });
+
+  return `${startFormatted} — ${endFormatted}`;
+}
+
+export function deriveTripStatus(
+  startDateStr: string,
+  endDateStr: string,
+  fallbackStatus: 'upcoming' | 'planning' | 'completed' | 'draft' = 'planning'
+): 'upcoming' | 'planning' | 'completed' | 'draft' {
+  if (!startDateStr || !endDateStr) return fallbackStatus;
+
+  const start = new Date(startDateStr);
+  const end = new Date(endDateStr);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return fallbackStatus;
+  }
+
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+
+  if (end.getTime() < now.getTime()) {
+    return 'completed';
+  }
+
+  // If start is within next 60 days
+  const sixtyDaysAhead = new Date();
+  sixtyDaysAhead.setDate(now.getDate() + 60);
+
+  if (start.getTime() >= now.getTime() && start.getTime() <= sixtyDaysAhead.getTime()) {
+    return 'upcoming';
+  }
+
+  return 'planning';
 }

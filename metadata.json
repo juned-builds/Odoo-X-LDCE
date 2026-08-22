@@ -1,10 +1,8 @@
 {
   "name": "GlobeTrotter",
-<<<<<<< Updated upstream
-  "description": "GlobeTrotter Personalized Travel Planning - Authentication, Interactive Dashboard, Create Trip Planner & My Trips Management",
-=======
-  "description": "GlobeTrotter Personalized Travel Planning - Authentication, Interactive Dashboard & Create Trip Planner",
->>>>>>> Stashed changes
+  "description": "GlobeTrotter Personalized Travel Planning - Authentication, Interactive Dashboard, Create Trip Planner, My Trips, Explore Destinations, Activity Discovery, Day-wise Itinerary Builder, Itinerary View & Trip Calendar/Timeline",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
