@@ -71,7 +71,6 @@ export const AppShell: React.FC<AppShellProps> = ({
   const handleRemoveSavedDestination = (destinationId: string) => {
     setSavedDestinationIds((prev) => prev.filter((id) => id !== destinationId));
   };
-
   // Module 10: Shared / Public Itinerary State
   const [shareModalTrip, setShareModalTrip] = useState<Trip | null>(null);
   const [publicShareId, setPublicShareId] = useState<string | null>(null);
