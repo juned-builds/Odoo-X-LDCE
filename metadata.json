@@ -1,0 +1,6 @@
+{
+  "name": "GlobeTrotter",
+  "description": "Empowering Personalized Travel Planning - Authentication & Visual Foundation",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
