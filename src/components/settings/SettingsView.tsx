@@ -532,14 +532,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </select>
             </div>
 
-            {/* Prototype Indicator Notice */}
+            {/* Language Preference Notice */}
             <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex items-start gap-3 text-xs text-indigo-900">
               <Info className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <p className="font-semibold text-indigo-950">Prototype Preference Indicator</p>
+                <p className="font-semibold text-indigo-950">Language Preference</p>
                 <p className="text-indigo-800 leading-relaxed">
-                  Language preferences are stored with your profile and synchronized across your session.
-                  Full multi-lingual localization will be supported in upcoming production releases.
+                  Language preferences are stored with your profile and synchronized across your account.
                 </p>
               </div>
             </div>
@@ -639,7 +638,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   Account & Session
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Manage your authenticated session and prototype account status
+                  Manage your authenticated session and account security
                 </p>
               </div>
             </div>
@@ -667,7 +666,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <div className="space-y-0.5">
                 <h4 className="font-bold text-sm text-rose-950">Delete Account</h4>
                 <p className="text-xs text-rose-700/90">
-                  Permanently clear this prototype profile, saved destinations, and custom session data.
+                  Permanently delete your profile, saved destinations, trips, and account data.
                 </p>
               </div>
               <button

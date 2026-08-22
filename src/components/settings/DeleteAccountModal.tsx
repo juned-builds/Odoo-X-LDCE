@@ -49,7 +49,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
             Delete your account?
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            This action will remove your local GlobeTrotter account data from this prototype.
+            This action will permanently remove your GlobeTrotter account and associated data.
           </p>
           <div className="p-3 rounded-2xl bg-rose-50/70 border border-rose-100 text-xs text-rose-800 space-y-1">
             <p className="font-semibold">What will be cleared:</p>

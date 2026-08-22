@@ -68,13 +68,6 @@ export const PlaceholderModal: React.FC<PlaceholderModalProps> = ({
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-600 space-y-1">
-              <p className="font-semibold text-slate-800">Current Scope: Module 2 Dashboard</p>
-              <p className="text-[11px] text-slate-500">
-                The dashboard navigation, recent trips, upcoming trip preview, destination cards, and budget highlights are live and fully interactive in this prototype.
-              </p>
-            </div>
-
             <div className="pt-2 flex justify-end gap-2">
               <Button type="button" variant="primary" size="md" onClick={onClose} rightIcon={<ArrowRight className="w-4 h-4" />}>
                 {actionText}

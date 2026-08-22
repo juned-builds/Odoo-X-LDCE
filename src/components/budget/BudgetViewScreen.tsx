@@ -211,14 +211,9 @@ export const BudgetViewScreen: React.FC<BudgetViewScreenProps> = ({
           )}
 
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-slate-900">
-                Trip Budget & Cost Breakdown
-              </h2>
-              <span className="text-[11px] font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
-                Module 9
-              </span>
-            </div>
+            <h2 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-slate-900">
+              Trip Budget & Cost Breakdown
+            </h2>
             <p className="text-xs sm:text-sm text-slate-500">
               Live financial tracking, category allocation & daily spending targets
             </p>

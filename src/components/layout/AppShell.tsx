@@ -20,6 +20,15 @@ import { AuthenticatedUser } from '../../types/auth';
 import { MOCK_RECENT_TRIPS } from '../../data/mockDashboardData';
 import { ALL_DESTINATIONS } from '../../data/destinationsData';
 import { getTripShareId, cloneTripForCopy } from '../../utils/shareUtils';
+import {
+  fetchTripsApi,
+  createTripApi,
+  updateTripApi,
+  deleteTripApi,
+  fetchSavedDestinationIdsApi,
+  saveDestinationApi,
+  removeSavedDestinationApi,
+} from '../../utils/tripsApi';
 
 interface AppShellProps {
   user: AuthenticatedUser | null;
@@ -53,23 +62,82 @@ export const AppShell: React.FC<AppShellProps> = ({
     'dest-swiss-alps',
   ]);
 
+  // Load trips and saved destinations from PostgreSQL
+  useEffect(() => {
+    let isMounted = true;
+    async function loadData() {
+      if (!user) return;
+      try {
+        const [serverTrips, serverSavedIds] = await Promise.all([
+          fetchTripsApi().catch(() => []),
+          fetchSavedDestinationIdsApi().catch(() => []),
+        ]);
+
+        if (!isMounted) return;
+
+        if (serverTrips && serverTrips.length > 0) {
+          setTrips(serverTrips);
+        } else {
+          // Fresh user: seed initial mock trips into PostgreSQL database so they have persistent default trips
+          const seededTrips: Trip[] = [];
+          for (const mockTrip of MOCK_RECENT_TRIPS) {
+            try {
+              const created = await createTripApi(mockTrip);
+              seededTrips.push(created);
+            } catch (err) {
+              console.error('Error seeding initial trip:', err);
+            }
+          }
+          if (isMounted && seededTrips.length > 0) {
+            setTrips(seededTrips);
+          }
+        }
+
+        if (serverSavedIds && serverSavedIds.length > 0) {
+          setSavedDestinationIds(serverSavedIds);
+        }
+      } catch (err) {
+        console.error('Failed to load trips or saved destinations from server:', err);
+      }
+    }
+
+    loadData();
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]);
+
   // Derived saved destinations list
   const savedDestinations = useMemo(() => {
     return ALL_DESTINATIONS.filter((d) => savedDestinationIds.includes(d.id));
   }, [savedDestinationIds]);
 
-  const handleToggleSaveDestination = (destination: Destination) => {
-    setSavedDestinationIds((prev) => {
-      if (prev.includes(destination.id)) {
-        return prev.filter((id) => id !== destination.id);
-      } else {
-        return [...prev, destination.id];
+  const handleToggleSaveDestination = async (destination: Destination) => {
+    const isSaved = savedDestinationIds.includes(destination.id);
+    if (isSaved) {
+      setSavedDestinationIds((prev) => prev.filter((id) => id !== destination.id));
+      try {
+        await removeSavedDestinationApi(destination.id);
+      } catch (err) {
+        console.error('Error removing saved destination:', err);
       }
-    });
+    } else {
+      setSavedDestinationIds((prev) => [...prev, destination.id]);
+      try {
+        await saveDestinationApi(destination.id);
+      } catch (err) {
+        console.error('Error saving destination:', err);
+      }
+    }
   };
 
-  const handleRemoveSavedDestination = (destinationId: string) => {
+  const handleRemoveSavedDestination = async (destinationId: string) => {
     setSavedDestinationIds((prev) => prev.filter((id) => id !== destinationId));
+    try {
+      await removeSavedDestinationApi(destinationId);
+    } catch (err) {
+      console.error('Error removing saved destination:', err);
+    }
   };
 
   // Module 10: Shared / Public Itinerary State
@@ -158,7 +226,7 @@ export const AppShell: React.FC<AppShellProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleUpdateTrip = (updatedTrip: Trip) => {
+  const handleUpdateTrip = async (updatedTrip: Trip) => {
     setTrips((prevTrips) =>
       prevTrips.map((t) => (t.id === updatedTrip.id ? updatedTrip : t))
     );
@@ -173,6 +241,19 @@ export const AppShell: React.FC<AppShellProps> = ({
     }
     if (shareModalTrip?.id === updatedTrip.id) {
       setShareModalTrip(updatedTrip);
+    }
+
+    try {
+      const persisted = await updateTripApi(updatedTrip.id, updatedTrip);
+      setTrips((prevTrips) =>
+        prevTrips.map((t) => (t.id === persisted.id ? persisted : t))
+      );
+      if (budgetTrip?.id === persisted.id) setBudgetTrip(persisted);
+      if (itineraryTrip?.id === persisted.id) setItineraryTrip(persisted);
+      if (viewingTrip?.id === persisted.id) setViewingTrip(persisted);
+      if (shareModalTrip?.id === persisted.id) setShareModalTrip(persisted);
+    } catch (err) {
+      console.error('Error saving trip to database:', err);
     }
   };
 
@@ -190,20 +271,35 @@ export const AppShell: React.FC<AppShellProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleTripCreated = (newTrip: Trip) => {
+  const handleTripCreated = async (newTrip: Trip) => {
     setTrips([newTrip, ...trips]);
     setNewlyCreatedTrip(newTrip);
     setNotificationMessage(`Trip "${newTrip.name}" has been created successfully.`);
     setActiveSection('dashboard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    try {
+      const persisted = await createTripApi(newTrip);
+      setTrips((prev) => prev.map((t) => (t.id === newTrip.id ? persisted : t)));
+      setNewlyCreatedTrip(persisted);
+    } catch (err) {
+      console.error('Error persisting new trip:', err);
+    }
   };
 
-  const handleTripUpdated = (updatedTrip: Trip) => {
+  const handleTripUpdated = async (updatedTrip: Trip) => {
     setTrips(trips.map((t) => (t.id === updatedTrip.id ? updatedTrip : t)));
     setNotificationMessage(`Trip "${updatedTrip.name}" updated successfully.`);
     setActiveSection('my-trips');
     setEditingTrip(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    try {
+      const persisted = await updateTripApi(updatedTrip.id, updatedTrip);
+      setTrips((prev) => prev.map((t) => (t.id === updatedTrip.id ? persisted : t)));
+    } catch (err) {
+      console.error('Error persisting trip update:', err);
+    }
   };
 
   const handleEditTrip = (trip: Trip) => {
@@ -218,45 +314,59 @@ export const AppShell: React.FC<AppShellProps> = ({
     setViewingTrip(trip);
   };
 
-  const handleDeleteTrip = (tripId: string) => {
+  const handleDeleteTrip = async (tripId: string) => {
     const deletedTrip = trips.find((t) => t.id === tripId);
     setTrips(trips.filter((t) => t.id !== tripId));
     if (deletedTrip) {
       setNotificationMessage(`"${deletedTrip.name}" was successfully deleted.`);
     }
+
+    try {
+      await deleteTripApi(tripId);
+    } catch (err) {
+      console.error('Error deleting trip from database:', err);
+    }
   };
 
-  const handleAddDestinationToTrip = (tripId: string, destinationName: string) => {
+  const handleAddDestinationToTrip = async (tripId: string, destinationName: string) => {
+    const targetTrip = trips.find((t) => t.id === tripId);
+    if (!targetTrip) return;
+
+    const currentDests = targetTrip.destinations || [];
+    if (currentDests.includes(destinationName)) return;
+
+    const updatedDests = [...currentDests, destinationName];
+    const newRoute = updatedDests.join(' → ');
+    const newDestCount = updatedDests.length;
+
+    const newStop = {
+      id: `stop-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      city: destinationName,
+      durationDays: 2,
+      order: (targetTrip.stops?.length || 0) + 1,
+    };
+    const updatedStops = [...(targetTrip.stops || []), newStop];
+
+    const updatedTrip: Trip = {
+      ...targetTrip,
+      destinations: updatedDests,
+      route: newRoute,
+      destinationCount: newDestCount,
+      stops: updatedStops,
+    };
+
     setTrips((prevTrips) =>
-      prevTrips.map((t) => {
-        if (t.id !== tripId) return t;
-
-        const currentDests = t.destinations || [];
-        if (currentDests.includes(destinationName)) {
-          return t;
-        }
-
-        const updatedDests = [...currentDests, destinationName];
-        const newRoute = updatedDests.join(' → ');
-        const newDestCount = updatedDests.length;
-
-        const newStop = {
-          id: `stop-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-          city: destinationName,
-          durationDays: 2,
-          order: (t.stops?.length || 0) + 1,
-        };
-        const updatedStops = [...(t.stops || []), newStop];
-
-        return {
-          ...t,
-          destinations: updatedDests,
-          route: newRoute,
-          destinationCount: newDestCount,
-          stops: updatedStops,
-        };
-      })
+      prevTrips.map((t) => (t.id === tripId ? updatedTrip : t))
     );
+
+    try {
+      const persisted = await updateTripApi(tripId, updatedTrip);
+      setTrips((prevTrips) =>
+        prevTrips.map((t) => (t.id === tripId ? persisted : t))
+      );
+    } catch (err) {
+      console.error('Error adding destination to trip in database:', err);
+    }
   };
 
   const handleCreateTripWithDestination = (destinationName: string) => {
@@ -306,107 +416,137 @@ export const AppShell: React.FC<AppShellProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSaveItinerary = (updatedTrip: Trip) => {
+  const handleSaveItinerary = async (updatedTrip: Trip) => {
     setTrips((prevTrips) =>
       prevTrips.map((t) => (t.id === updatedTrip.id ? updatedTrip : t))
     );
     setItineraryTrip(updatedTrip);
+
+    try {
+      const persisted = await updateTripApi(updatedTrip.id, updatedTrip);
+      setTrips((prevTrips) =>
+        prevTrips.map((t) => (t.id === updatedTrip.id ? persisted : t))
+      );
+      setItineraryTrip(persisted);
+    } catch (err) {
+      console.error('Error saving itinerary to database:', err);
+    }
   };
 
-  const handleAddActivityToTrip = (
+  const handleAddActivityToTrip = async (
     tripId: string,
     activity: Activity,
     dayNumber?: number,
     date?: string
   ) => {
-    setTrips((prevTrips) =>
-      prevTrips.map((t) => {
-        if (t.id !== tripId) return t;
+    const targetTrip = trips.find((t) => t.id === tripId);
+    if (!targetTrip) return;
 
-        const currentActivities = t.activities || [];
-        const isAlreadyAdded = currentActivities.some(
-          (act) => act.activityId === activity.id
-        );
-        if (isAlreadyAdded) return t;
-
-        const newAssignment: TripActivityAssignment = {
-          id: `act-assign-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-          activityId: activity.id,
-          name: activity.name,
-          duration: activity.duration,
-          cost: activity.cost,
-          dayNumber: dayNumber || 1,
-          date: date || t.startDate,
-          startTime: '10:00 AM',
-          destinationCity: activity.destinationCity,
-          destinationId: activity.destinationId,
-          type: activity.type,
-          image: activity.image,
-          description: activity.description,
-        };
-
-        const updatedActivities = [...currentActivities, newAssignment];
-
-        let updatedStops = t.stops;
-        if (updatedStops && updatedStops.length > 0) {
-          const targetStopIndex = updatedStops.findIndex(
-            (s) => s.city.toLowerCase() === activity.destinationCity.toLowerCase()
-          );
-          if (targetStopIndex >= 0) {
-            const stop = updatedStops[targetStopIndex];
-            const stopActs = stop.activities || [];
-            if (!stopActs.some((a) => a.activityId === activity.id)) {
-              const updatedStop = {
-                ...stop,
-                activities: [...stopActs, newAssignment],
-              };
-              updatedStops = [
-                ...updatedStops.slice(0, targetStopIndex),
-                updatedStop,
-                ...updatedStops.slice(targetStopIndex + 1),
-              ];
-            }
-          }
-        }
-
-        return {
-          ...t,
-          activities: updatedActivities,
-          stops: updatedStops || t.stops,
-        };
-      })
+    const currentActivities = targetTrip.activities || [];
+    const isAlreadyAdded = currentActivities.some(
+      (act) => act.activityId === activity.id
     );
+    if (isAlreadyAdded) return;
+
+    const newAssignment: TripActivityAssignment = {
+      id: `act-assign-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      activityId: activity.id,
+      name: activity.name,
+      duration: activity.duration,
+      cost: activity.cost,
+      dayNumber: dayNumber || 1,
+      date: date || targetTrip.startDate,
+      startTime: '10:00 AM',
+      destinationCity: activity.destinationCity,
+      destinationId: activity.destinationId,
+      type: activity.type,
+      image: activity.image,
+      description: activity.description,
+    };
+
+    const updatedActivities = [...currentActivities, newAssignment];
+
+    let updatedStops = targetTrip.stops;
+    if (updatedStops && updatedStops.length > 0) {
+      const targetStopIndex = updatedStops.findIndex(
+        (s) => s.city.toLowerCase() === activity.destinationCity.toLowerCase()
+      );
+      if (targetStopIndex >= 0) {
+        const stop = updatedStops[targetStopIndex];
+        const stopActs = stop.activities || [];
+        if (!stopActs.some((a) => a.activityId === activity.id)) {
+          const updatedStop = {
+            ...stop,
+            activities: [...stopActs, newAssignment],
+          };
+          updatedStops = [
+            ...updatedStops.slice(0, targetStopIndex),
+            updatedStop,
+            ...updatedStops.slice(targetStopIndex + 1),
+          ];
+        }
+      }
+    }
+
+    const updatedTrip: Trip = {
+      ...targetTrip,
+      activities: updatedActivities,
+      stops: updatedStops || targetTrip.stops,
+    };
+
+    setTrips((prevTrips) =>
+      prevTrips.map((t) => (t.id === tripId ? updatedTrip : t))
+    );
+
+    try {
+      const persisted = await updateTripApi(tripId, updatedTrip);
+      setTrips((prevTrips) =>
+        prevTrips.map((t) => (t.id === tripId ? persisted : t))
+      );
+    } catch (err) {
+      console.error('Error adding activity to database:', err);
+    }
   };
 
-  const handleRemoveActivityFromTrip = (tripId: string, activityId: string) => {
-    setTrips((prevTrips) =>
-      prevTrips.map((t) => {
-        if (t.id !== tripId) return t;
+  const handleRemoveActivityFromTrip = async (tripId: string, activityId: string) => {
+    const targetTrip = trips.find((t) => t.id === tripId);
+    if (!targetTrip) return;
 
-        const currentActivities = t.activities || [];
-        const updatedActivities = currentActivities.filter(
-          (act) => act.activityId !== activityId && act.id !== activityId
-        );
-
-        let updatedStops = t.stops;
-        if (updatedStops) {
-          updatedStops = updatedStops.map((stop) => ({
-            ...stop,
-            activities: stop.activities
-              ? stop.activities.filter(
-                  (act) => act.activityId !== activityId && act.id !== activityId
-                )
-              : [],
-          }));
-        }
-
-        return {
-          ...t,
-          activities: updatedActivities,
-          stops: updatedStops || t.stops,
-        };
-      })
+    const currentActivities = targetTrip.activities || [];
+    const updatedActivities = currentActivities.filter(
+      (act) => act.activityId !== activityId && act.id !== activityId
     );
+
+    let updatedStops = targetTrip.stops;
+    if (updatedStops) {
+      updatedStops = updatedStops.map((stop) => ({
+        ...stop,
+        activities: stop.activities
+          ? stop.activities.filter(
+              (act) => act.activityId !== activityId && act.id !== activityId
+            )
+          : [],
+      }));
+    }
+
+    const updatedTrip: Trip = {
+      ...targetTrip,
+      activities: updatedActivities,
+      stops: updatedStops || targetTrip.stops,
+    };
+
+    setTrips((prevTrips) =>
+      prevTrips.map((t) => (t.id === tripId ? updatedTrip : t))
+    );
+
+    try {
+      const persisted = await updateTripApi(tripId, updatedTrip);
+      setTrips((prevTrips) =>
+        prevTrips.map((t) => (t.id === tripId ? persisted : t))
+      );
+    } catch (err) {
+      console.error('Error removing activity in database:', err);
+    }
   };
 
   const handleExploreActivitiesForDestination = (destination: Destination) => {

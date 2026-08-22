@@ -101,7 +101,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           <div className="pt-6 sm:pt-8 mt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
             <div className="flex items-center gap-1.5 font-medium">
               <Compass className="w-3.5 h-3.5 text-teal-600" />
-              <span>Personalized travel planning prototype</span>
+              <span>Personalized travel planning platform</span>
             </div>
             
             <div className="flex items-center gap-3">

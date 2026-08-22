@@ -273,7 +273,7 @@ export const ShareTripModal: React.FC<ShareTripModalProps> = ({
               </div>
 
               <p className="text-[11px] text-slate-400">
-                Frontend prototype share link for demonstration and peer review.
+                Shareable public link for friends and co-travelers to view this itinerary.
               </p>
             </div>
           ) : (

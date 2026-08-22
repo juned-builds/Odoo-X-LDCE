@@ -196,7 +196,7 @@ export const TravelShowcase: React.FC = () => {
 
         {/* Footnote */}
         <p className="text-[11px] text-slate-400 mt-4 text-center font-normal">
-          Explore sample destinations and curated travel concepts in this prototype.
+          Explore curated destinations and plan your personalized journeys.
         </p>
       </div>
     </div>
