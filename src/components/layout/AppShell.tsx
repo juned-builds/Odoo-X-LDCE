@@ -520,4 +520,3 @@ export const AppShell: React.FC<AppShellProps> = ({ user, onLogout }) => {
     </div>
   );
 };
-

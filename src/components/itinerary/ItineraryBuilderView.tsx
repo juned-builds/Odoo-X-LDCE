@@ -403,7 +403,6 @@ export const ItineraryBuilderView: React.FC<ItineraryBuilderViewProps> = ({
                 View Itinerary
               </Button>
             )}
-
             <Button
               variant="outline"
               size="sm"
