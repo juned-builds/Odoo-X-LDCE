@@ -7,9 +7,10 @@ import { AuthenticatedUser } from '../../types/auth';
 interface AuthSuccessViewProps {
   user: AuthenticatedUser;
   onLogout: () => void;
+  onEnterDashboard?: () => void;
 }
 
-export const AuthSuccessView: React.FC<AuthSuccessViewProps> = ({ user, onLogout }) => {
+export const AuthSuccessView: React.FC<AuthSuccessViewProps> = ({ user, onLogout, onEnterDashboard }) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}
@@ -84,8 +85,20 @@ export const AuthSuccessView: React.FC<AuthSuccessViewProps> = ({ user, onLogout
         </div>
       </div>
 
-      {/* Logout / Switch User Action */}
-      <div className="pt-2">
+      {/* Actions */}
+      <div className="pt-2 flex flex-col sm:flex-row gap-3">
+        {onEnterDashboard && (
+          <Button
+            type="button"
+            variant="primary"
+            fullWidth
+            size="md"
+            onClick={onEnterDashboard}
+            rightIcon={<Compass className="w-4 h-4" />}
+          >
+            Enter Dashboard (Module 2)
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"
@@ -94,7 +107,7 @@ export const AuthSuccessView: React.FC<AuthSuccessViewProps> = ({ user, onLogout
           onClick={onLogout}
           leftIcon={<LogOut className="w-4 h-4" />}
         >
-          Sign Out / Test Other Auth Flows
+          Sign Out / Test Auth Flows
         </Button>
       </div>
     </motion.div>

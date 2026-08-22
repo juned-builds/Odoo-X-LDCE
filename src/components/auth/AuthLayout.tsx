@@ -72,6 +72,9 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
                     setAuthenticatedUser(null);
                     setCurrentView('login');
                   }}
+                  onEnterDashboard={() => {
+                    setCurrentView('dashboard');
+                  }}
                 />
               ) : currentView === 'login' ? (
                 <LoginForm
