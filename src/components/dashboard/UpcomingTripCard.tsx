@@ -9,6 +9,7 @@ import {
   Luggage,
 } from 'lucide-react';
 import { Trip } from '../../types/dashboard';
+import { formatTripDateRange } from '../../utils/dateUtils';
 
 interface UpcomingTripCardProps {
   trip: Trip;
@@ -62,7 +63,7 @@ export const UpcomingTripCard: React.FC<UpcomingTripCardProps> = ({
                 </span>
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{trip.startDate} — {trip.endDate}</span>
+                  <span>{formatTripDateRange(trip.startDate, trip.endDate)}</span>
                 </span>
               </div>
 
@@ -78,7 +79,7 @@ export const UpcomingTripCard: React.FC<UpcomingTripCardProps> = ({
 
             {/* Destination Route Stop Pills */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              {trip.destinations.map((dest, idx) => (
+              {(trip.destinations || [trip.route]).map((dest, idx) => (
                 <div
                   key={dest}
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700"

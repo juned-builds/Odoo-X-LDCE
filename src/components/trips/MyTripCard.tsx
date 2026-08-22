@@ -8,6 +8,7 @@ import {
   Trash2,
   Edit3,
   Sparkles,
+  Layers,
 } from 'lucide-react';
 import { Trip } from '../../types/dashboard';
 import { formatTripDateRange } from '../../utils/dateUtils';
@@ -18,6 +19,7 @@ interface MyTripCardProps {
   onView: (trip: Trip) => void;
   onEdit: (trip: Trip) => void;
   onDelete: (trip: Trip) => void;
+  onBuildItinerary?: (trip: Trip) => void;
 }
 
 export const MyTripCard: React.FC<MyTripCardProps> = ({
@@ -25,6 +27,7 @@ export const MyTripCard: React.FC<MyTripCardProps> = ({
   onView,
   onEdit,
   onDelete,
+  onBuildItinerary,
 }) => {
   const getStatusBadge = (status: Trip['status']) => {
     switch (status) {
@@ -139,23 +142,34 @@ export const MyTripCard: React.FC<MyTripCardProps> = ({
         </div>
 
         {/* Action Button Row */}
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2.5">
+        <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+          {onBuildItinerary && (
+            <button
+              type="button"
+              onClick={() => onBuildItinerary(trip)}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100/80 border border-teal-200/80 transition-all active:scale-[0.98] cursor-pointer shadow-2xs"
+            >
+              <Layers className="w-3.5 h-3.5 text-teal-600" />
+              <span>Build Itinerary</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => onEdit(trip)}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 transition-all active:scale-[0.98] cursor-pointer"
+            className="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 transition-all active:scale-[0.98] cursor-pointer"
           >
             <Edit3 className="w-3.5 h-3.5 text-slate-500" />
-            <span>Edit Trip</span>
+            <span>Edit</span>
           </button>
 
           <button
             type="button"
             onClick={() => onView(trip)}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 shadow-xs hover:shadow transition-all active:scale-[0.98] cursor-pointer"
+            className="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs hover:shadow transition-all active:scale-[0.98] cursor-pointer"
           >
-            <span>View</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>Overview</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
           </button>
         </div>
       </div>

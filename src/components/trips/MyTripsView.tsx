@@ -24,6 +24,7 @@ interface MyTripsViewProps {
   onEditTrip: (trip: Trip) => void;
   onViewTrip: (trip: Trip) => void;
   onDeleteTrip: (tripId: string) => void;
+  onBuildItinerary?: (trip: Trip) => void;
   notificationMessage?: string | null;
   onDismissNotification?: () => void;
 }
@@ -37,6 +38,7 @@ export const MyTripsView: React.FC<MyTripsViewProps> = ({
   onEditTrip,
   onViewTrip,
   onDeleteTrip,
+  onBuildItinerary,
   notificationMessage,
   onDismissNotification,
 }) => {
@@ -325,6 +327,7 @@ export const MyTripsView: React.FC<MyTripsViewProps> = ({
               onView={onViewTrip}
               onEdit={onEditTrip}
               onDelete={(t) => setTripToDelete(t)}
+              onBuildItinerary={onBuildItinerary}
             />
           ))}
         </div>
