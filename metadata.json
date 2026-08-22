@@ -1,6 +1,6 @@
 {
   "name": "GlobeTrotter",
-  "description": "GlobeTrotter Personalized Travel Planning - Authentication, Interactive Dashboard, Create Trip Planner, My Trips, Explore Destinations, Activity Discovery, Day-wise Itinerary Builder, Itinerary View & Trip Calendar/Timeline",
+  "description": "GlobeTrotter Personalized Travel Planning - Authentication, Interactive Dashboard, Create Trip Planner, My Trips, Explore Destinations, Activity Discovery, Day-wise Itinerary Builder, Itinerary View & Trip Calendar/Timeline, Trip Budget & Cost Breakdown",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

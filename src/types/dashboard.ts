@@ -1,3 +1,5 @@
+import { ExpenseItem } from './budget';
+
 export type NavSection =
   | 'dashboard'
   | 'create-trip'
@@ -65,6 +67,7 @@ export interface Trip {
   destinations: string[];
   stops?: TripStop[];
   activities?: TripActivityAssignment[];
+  expenses?: ExpenseItem[];
   createdAt?: string;
 }
 

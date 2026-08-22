@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { CheckCircle2, Sparkles, X, Compass } from 'lucide-react';
 import { DashboardHeader } from './DashboardHeader';
@@ -12,9 +12,9 @@ import {
   MOCK_UPCOMING_TRIP,
   MOCK_RECENT_TRIPS,
   MOCK_RECOMMENDED_DESTINATIONS,
-  MOCK_BUDGET_HIGHLIGHT,
 } from '../../data/mockDashboardData';
-import { Trip } from '../../types/dashboard';
+import { Trip, BudgetHighlight } from '../../types/dashboard';
+import { calculateTripFinancials } from '../../utils/budgetCalculations';
 import { formatTripDateRange } from '../../utils/dateUtils';
 
 interface DashboardViewProps {
@@ -27,6 +27,7 @@ interface DashboardViewProps {
   onEditTrip?: (trip: Trip) => void;
   onViewTrip?: (trip: Trip) => void;
   onBuildItinerary?: (trip: Trip) => void;
+  onViewBudget?: (trip: Trip) => void;
   onNavigateToExplore?: () => void;
 }
 
@@ -40,6 +41,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onEditTrip,
   onViewTrip,
   onBuildItinerary,
+  onViewBudget,
   onNavigateToExplore,
 }) => {
   const [modalState, setModalState] = useState<{
@@ -67,8 +69,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     });
   };
 
+  const handleClosePlaceholder = () => {
+    setModalState((prev) => ({ ...prev, isOpen: false }));
+  };
+
   // Find next upcoming trip dynamically from trips collection if available
   const upcomingTrip = trips.find((t) => t.status === 'upcoming') || trips[0] || MOCK_UPCOMING_TRIP;
+
+  // Compute dynamic budget highlights for the upcoming trip
+  const dynamicBudgetHighlight: BudgetHighlight = useMemo(() => {
+    const financials = calculateTripFinancials(upcomingTrip);
+    return {
+      tripName: upcomingTrip.name,
+      currency: financials.currency,
+      totalPlanned: financials.totalBudget,
+      amountSpent: financials.totalEstimatedCost,
+      remainingAmount: financials.remainingBudget,
+      averageDailyCost: financials.averageDailyCost,
+      tripDurationDays: financials.tripDurationDays,
+      categories: Object.values(financials.categories).map((cat) => ({
+        name: cat.label,
+        spent: cat.amount,
+        budgeted: Math.round(financials.totalBudget * (cat.percentage / 100)),
+        percentage: cat.percentage,
+        color: cat.color,
+        bgColor: cat.bgColor,
+      })),
+    };
+  }, [upcomingTrip]);
 
   return (
     <motion.div
@@ -139,19 +167,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <h2 className="text-xl font-bold font-display tracking-tight text-slate-900">
               Trip Budget
             </h2>
-            <span className="text-xs text-teal-700 font-semibold bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
-              ₹11,500 Left
+            <span
+              className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
+                dynamicBudgetHighlight.remainingAmount < 0
+                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                  : 'bg-teal-50 text-teal-700 border-teal-200'
+              }`}
+            >
+              {dynamicBudgetHighlight.remainingAmount < 0 ? '-' : ''}
+              {dynamicBudgetHighlight.currency}
+              {Math.abs(dynamicBudgetHighlight.remainingAmount).toLocaleString()}{' '}
+              {dynamicBudgetHighlight.remainingAmount < 0 ? 'Over' : 'Left'}
             </span>
           </div>
           <BudgetHighlightCard
-            budget={MOCK_BUDGET_HIGHLIGHT}
-            onViewBudgetDetails={() =>
-              handleOpenPlaceholder(
-                'Comprehensive Budget Planner',
-                'The detailed expense logger, currency converter, split-cost calculator, and receipt manager will be available in the upcoming Budget module.',
-                'Module: Budget Manager'
-              )
-            }
+            budget={dynamicBudgetHighlight}
+            onViewBudgetDetails={() => {
+              if (onViewBudget) {
+                onViewBudget(upcomingTrip);
+              } else {
+                handleOpenPlaceholder(
+                  'Comprehensive Budget Planner',
+                  'Live trip financial tracking and expense management.',
+                  'Module: Budget Manager'
+                );
+              }
+            }}
           />
         </div>
       </div>
