@@ -8,6 +8,7 @@ import { SignupForm } from './SignupForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
 import { AuthSuccessView } from './AuthSuccessView';
 import { AnimatePresence } from 'motion/react';
+import { logoutUserApi } from '../../utils/authApi';
 
 interface AuthLayoutProps {
   currentView: AuthView;
@@ -22,6 +23,11 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   authenticatedUser,
   setAuthenticatedUser,
 }) => {
+  const handleLogout = async () => {
+    await logoutUserApi();
+    setAuthenticatedUser(null);
+    setCurrentView('login');
+  };
   return (
     <main className="min-h-screen w-full bg-slate-100 flex items-center justify-center p-3 sm:p-6 lg:p-8 selection:bg-teal-500 selection:text-white">
       {/* Central Glass Frame Container */}
@@ -68,10 +74,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
                 <AuthSuccessView
                   key="auth-success"
                   user={authenticatedUser}
-                  onLogout={() => {
-                    setAuthenticatedUser(null);
-                    setCurrentView('login');
-                  }}
+                  onLogout={handleLogout}
                   onEnterDashboard={() => {
                     setCurrentView('dashboard');
                   }}

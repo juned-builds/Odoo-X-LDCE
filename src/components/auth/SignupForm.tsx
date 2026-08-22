@@ -6,6 +6,7 @@ import { Button } from '../ui/Button';
 import { Checkbox } from '../ui/Checkbox';
 import { Alert } from '../ui/Alert';
 import { AuthView, FormErrors, SignupFormData, AuthenticatedUser } from '../../types/auth';
+import { registerUserApi } from '../../utils/authApi';
 
 interface SignupFormProps {
   onNavigate: (view: AuthView) => void;
@@ -91,16 +92,19 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onNavigate, onSuccess })
 
     setIsLoading(true);
 
-    // Simulate signup request
-    setTimeout(() => {
-      setIsLoading(false);
-      onSuccess({
+    try {
+      const newUser = await registerUserApi({
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
-        memberSince: 'August 2026',
-        preferredStyle: 'New Explorer',
+        password: formData.password,
+        preferredStyle: 'Cultural Explorer',
       });
-    }, 950);
+      setIsLoading(false);
+      onSuccess(newUser);
+    } catch (err: any) {
+      setIsLoading(false);
+      setGeneralError(err.message || 'Failed to create your travel account.');
+    }
   };
 
   return (
