@@ -1,4 +1,4 @@
-export type AuthView = 'login' | 'signup' | 'forgot-password';
+export type AuthView = 'login' | 'signup' | 'forgot-password' | 'dashboard';
 
 export interface LoginFormData {
   email: string;
@@ -28,4 +28,7 @@ export interface AuthenticatedUser {
   avatarUrl?: string;
   memberSince: string;
   preferredStyle?: string;
+  language?: string;
+  homeCity?: string;
+  bio?: string;
 }
