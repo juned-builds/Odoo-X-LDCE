@@ -27,14 +27,17 @@ export interface ItineraryActivity {
 export interface ItineraryDay {
   dayNumber: number; // 1, 2, 3...
   dateStr: string; // 'YYYY-MM-DD'
+  date?: string; // alias for dateStr
   formattedDate: string; // e.g. '10 Jun', 'Thu, Jun 10'
   dayOfWeek: string; // e.g. 'Wednesday'
   destinationCity: string; // e.g. 'Paris'
   destinationId?: string;
+  country?: string;
   activities: ItineraryActivity[];
   totalDurationMinutes: number;
   formattedDuration: string; // e.g. '5h 30m planned'
   totalCostNumeric: number;
+  totalCost?: number; // alias for totalCostNumeric
   formattedCost: string; // e.g. '₹4,500' or '$75'
   hasTimeConflict: boolean;
   conflictReason?: string;

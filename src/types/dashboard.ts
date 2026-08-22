@@ -39,9 +39,11 @@ export interface TripActivityAssignment {
 }
 
 export interface TripStop {
+  id?: string;
   destinationId?: string;
   city: string;
   country?: string;
+  durationDays?: number;
   startDate?: string;
   endDate?: string;
   order: number;
@@ -69,6 +71,9 @@ export interface Trip {
   activities?: TripActivityAssignment[];
   expenses?: ExpenseItem[];
   createdAt?: string;
+  isShared?: boolean;
+  shareId?: string;
+  sharedAt?: string;
 }
 
 export interface Destination {

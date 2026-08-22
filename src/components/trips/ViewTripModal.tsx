@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Layers,
   ArrowRight,
+  Share2,
 } from 'lucide-react';
 import { Trip } from '../../types/dashboard';
 import { formatTripDateRange } from '../../utils/dateUtils';
@@ -23,6 +24,7 @@ interface ViewTripModalProps {
   onClose: () => void;
   onEdit: (trip: Trip) => void;
   onBuildItinerary?: (trip: Trip) => void;
+  onShare?: (trip: Trip) => void;
 }
 
 export const ViewTripModal: React.FC<ViewTripModalProps> = ({
@@ -31,6 +33,7 @@ export const ViewTripModal: React.FC<ViewTripModalProps> = ({
   onClose,
   onEdit,
   onBuildItinerary,
+  onShare,
 }) => {
   if (!isOpen || !trip) return null;
 
@@ -205,6 +208,20 @@ export const ViewTripModal: React.FC<ViewTripModalProps> = ({
           </Button>
 
           <div className="flex items-center gap-2">
+            {onShare && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onClose();
+                  onShare(trip);
+                }}
+                leftIcon={<Share2 className="w-3.5 h-3.5 text-teal-600" />}
+              >
+                Share Trip
+              </Button>
+            )}
+
             {onBuildItinerary && (
               <Button
                 variant="primary"
