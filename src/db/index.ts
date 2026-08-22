@@ -26,4 +26,28 @@ export const createPool = () => {
 
 const pool = createPool();
 
+export { pool };
+
+export async function checkDatabaseConnection(): Promise<boolean> {
+  try {
+    const client = await pool.connect();
+    try {
+      await client.query('SELECT 1');
+      return true;
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error('Database connectivity check failed:', err);
+    return false;
+  }
+}
+
+export async function closePool(): Promise<void> {
+  if (global._postgresPool) {
+    await global._postgresPool.end();
+    global._postgresPool = undefined;
+  }
+}
+
 export const db = drizzle(pool, { schema });
